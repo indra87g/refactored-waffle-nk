@@ -1,6 +1,6 @@
-name: ContohPlugin
+name: RefactoredWaffleNK
 main: com.indra87g.Main
 version: 0.1.0
 api: 1.0.0
 author: indra87g
-description: Plugin Nukkit dari GitHub Actions
+description: A nukkit plugin that provides various useful commands to your server.
