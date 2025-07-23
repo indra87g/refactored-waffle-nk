@@ -1,0 +1,6 @@
+name: ContohPlugin
+main: com.indra87g.Main
+version: 0.1.0
+api: 1.0.0
+author: indra87g
+description: Plugin Nukkit dari GitHub Actions

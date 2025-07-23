@@ -1,0 +1,16 @@
+name: Format Code
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ryanbascom/googlejavaformat@v4
+        with:
+          args: "--skip-sorting-imports --replace"
+          # Recommended if you use MacOS:
+          github-token: ${{ secrets.GH_TOKEN }}
