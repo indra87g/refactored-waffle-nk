@@ -20,7 +20,7 @@ public class ClearCommand extends BaseCommand {
 
     @Override
     protected boolean handleCommand(Player player, String[] args) {
-        int jumlah = 100; // default
+        int amount = 100; // default
 
         if (args.length == 1) {
             try {
