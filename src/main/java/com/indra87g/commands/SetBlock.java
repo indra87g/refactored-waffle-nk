@@ -78,7 +78,7 @@ public class SetBlock extends Command {
         Vector3 position = new Vector3(x, y, z);
         Block block = Block.get(blockId);
         
-        if (block == null) {
+        if (block.getId() == 0 && blockId != 0) { // 0 = Air
             player.sendMessage("§cError: Invalid block ID: " + blockId);
             return;
         }
