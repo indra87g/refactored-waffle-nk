@@ -1,22 +1,24 @@
 package com.indra87g;
 
 import cn.nukkit.plugin.PluginBase;
-import com.indra87g.commands.SetBlock;
+import com.indra87g.commands.SetBlockCommand;
+import com.indra87g.commands.ClearCommand;
 
 public class Main extends PluginBase {
 
     @Override
     public void onEnable() {
-        getLogger().info("Plugin activated!");
+        getLogger().info("§aplugin activated!");
         registerCommands();
     }
     
     private void registerCommands() {
-        this.getServer().getCommandMap().register("setblock", new SetBlock());
+        this.getServer().getCommandMap().register("setblock", new SetBlockCommand());
+        this.getServer().getCommandMap().register("clear", new ClearCommand());
     }
     
     @Override
     public void onDisable() {
-        getLogger().info("Plugin deactivated!");
+        getLogger().info("§aplugin deactivated!");
     }
 }
