@@ -1,6 +1,6 @@
 name: RefactoredWaffleNK
 main: com.indra87g.Main
-version: 0.1.1
+version: "${pom.version}"
 api: 1.0.0
 author: indra87g
 description: A nukkit plugin that provides various useful commands to your server.
