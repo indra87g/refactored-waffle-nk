@@ -15,7 +15,7 @@ public class SetBlock extends Command {
         this.setDescription("Place a block at specific location");
         this.setUsage("/setblock <x> <y> <z> <block_id>");
         
-        this.setPermission("plugin.setblock");
+        this.setPermission("waffle.setblock");
     }
 
     @Override
