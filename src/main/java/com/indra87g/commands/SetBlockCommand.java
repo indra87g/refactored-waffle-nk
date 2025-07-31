@@ -7,9 +7,9 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.Player;
 
-public class SetBlock extends Command {
+public class SetBlockCommand extends Command {
 
-    public SetBlock() {
+    public SetBlockCommand() {
         super("setblock");
         
         this.setDescription("Place a block at specific location");
