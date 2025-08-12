@@ -49,10 +49,11 @@
         <dependency>
             <groupId>me.onebone</groupId>
             <artifactId>EconomyAPI</artifactId>
-            <version>1.0.0</version>
+            <version>2.0.5</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/EconomyAPI.jar</systemPath>
         </dependency>
+
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
