@@ -51,12 +51,12 @@ public class CasinoCommand extends BaseCommand {
         Random rand = new Random();
         int roll = rand.nextInt(100); // 0 - 99
 
-        if (roll < 40) { // 40% kalah
+        if (roll < 40) { 
             player.sendMessage("§cToo bad, you lost. Your money is gone :) ");
-        } else if (roll < 70) { // 30% balik modal
+        } else if (roll < 50) {
             economy.addMoney(player, amount);
             player.sendMessage("§eYou're a novice gambler, you'd better not play!");
-        } else { // 30% menang
+        } else {
             int winAmount = amount * 2;
             economy.addMoney(player, winAmount);
             player.sendMessage("§aCongratulations! You won and got §f" + winAmount + "§a!");
