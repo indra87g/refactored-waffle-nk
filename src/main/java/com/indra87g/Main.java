@@ -3,6 +3,7 @@ package com.indra87g;
 import cn.nukkit.plugin.PluginBase;
 import com.indra87g.commands.SetBlockCommand;
 import com.indra87g.commands.ClearCommand;
+import com.indra87g.commands.CasinoCommand;
 
 public class Main extends PluginBase {
 
@@ -15,6 +16,7 @@ public class Main extends PluginBase {
     private void registerCommands() {
         this.getServer().getCommandMap().register("setblock", new SetBlockCommand());
         this.getServer().getCommandMap().register("clear", new ClearCommand());
+        this.getServer().getCommandMap().register("casino", new CasinoCommand());
     }
     
     @Override
