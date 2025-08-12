@@ -19,15 +19,13 @@ public class Main extends PluginBase {
         this.getServer().getCommandMap().register("casino", new CasinoCommand());
     }
 
-    if (getServer().getPluginManager().getPlugin("EconomyAPI") == null) {
-        getLogger().warning("EconomyAPI not found! Plugin disabled.");
-        getServer().getPluginManager().disablePlugin(this);
-        return;
-    }
-
-    
     @Override
     public void onDisable() {
         getLogger().info("§aplugin deactivated!");
+        if (getServer().getPluginManager().getPlugin("EconomyAPI") == null) {
+            getLogger().warning("EconomyAPI not found! Plugin disabled.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
     }
 }
