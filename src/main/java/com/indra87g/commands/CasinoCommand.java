@@ -56,6 +56,10 @@ public class CasinoCommand extends BaseCommand {
         } else if (roll < 50) {
             economy.addMoney(player, amount);
             player.sendMessage("§eYou're a novice gambler, you'd better not play!");
+        } else if (roll < 25) {
+            int winAmount = amount * 10
+            economy.addMoney(player, winAmount);
+            player.sendMessage("§l§gJACKPOT!§rYou won and got §f" + winAmount);
         } else {
             int winAmount = amount * 2;
             economy.addMoney(player, winAmount);
