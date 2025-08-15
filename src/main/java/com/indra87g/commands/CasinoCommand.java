@@ -10,8 +10,7 @@ public class CasinoCommand extends BaseCommand {
     private final Random random = new Random();
 
     public CasinoCommand() {
-        super("casino", "Play casino game", "/casino <coinflip|slot|dice> ...");
-        this.setPermission("waffle.casino");
+        super("casino", "Play casino game", "/casino <coinflip|slot|dice> ...", "waffle.casino");
     }
 
     @Override
