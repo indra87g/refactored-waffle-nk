@@ -1,7 +1,6 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
-import cn.nukkit.command.CommandSender;
 import me.onebone.economyapi.EconomyAPI;
 import java.util.Random;
 
@@ -14,18 +13,16 @@ public class CasinoCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("This command only for players!");
-            return false;
-        }
-        Player player = (Player) sender;
-
+    protected boolean validateArgs(String[] args, Player player) {
         if (args.length < 1) {
             player.sendMessage("§eUsage: /casino <coinflip|slot|dice>");
             return false;
         }
+        return true;
+    }
 
+    @Override
+    protected boolean handleCommand(Player player, String[] args) {
         String game = args[0].toLowerCase();
 
         switch (game) {
@@ -95,7 +92,7 @@ public class CasinoCommand extends BaseCommand {
         EconomyAPI eco = EconomyAPI.getInstance();
         if (eco.myMoney(player) < amount) {
             player.sendMessage("§cYour money is not enough!");
-         return false;
+            return false;
         }
 
         String[] symbols = {"○", "□", "♡", "◇"};
