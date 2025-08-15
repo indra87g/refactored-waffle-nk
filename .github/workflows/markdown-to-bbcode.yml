@@ -36,7 +36,7 @@ jobs:
           fs.writeFileSync('README.bbcode', bbcode);
           EOF
 
-          node --loader ts-node/esm convert.js
+          node convert.js
 
       - name: Upload BBCode file
         uses: actions/upload-artifact@v4
