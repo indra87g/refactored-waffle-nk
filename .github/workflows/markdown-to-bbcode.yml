@@ -1,0 +1,29 @@
+name: Convert README.md to BBCode
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Convert README.md to BBCode
+        run: |
+          pandoc README.md -f markdown -t bbcode -o README.bbcode
+
+      - name: Upload BBCode file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbcode-result
+          path: README.bbcode
