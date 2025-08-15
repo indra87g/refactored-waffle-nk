@@ -15,15 +15,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Pandoc
-        run: sudo apt-get install -y pandoc
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install marked marked-bbcode
 
       - name: Convert README.md to BBCode
         run: |
-          pandoc README.md -f markdown -t bbcode -o README.bbcode
+          cat << 'EOF' > convert.js
+          const fs = require("fs");
+          const marked = require("marked");
+          const BBCodeRenderer = require("marked-bbcode");
 
-      - name: Upload BBCode file as artifact
+          marked.use(BBCodeRenderer());
+
+          const md = fs.readFileSync("README.md", "utf8");
+          const bbcode = marked(md);
+          fs.writeFileSync("README.bbcode", bbcode);
+          EOF
+
+          node convert.js
+
+      - name: Upload BBCode file
         uses: actions/upload-artifact@v4
         with:
-          name: bbcode-result
+          name: README-bbcode
           path: README.bbcode
