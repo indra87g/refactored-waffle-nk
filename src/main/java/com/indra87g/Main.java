@@ -4,12 +4,18 @@ import cn.nukkit.plugin.PluginBase;
 import com.indra87g.commands.SetBlockCommand;
 import com.indra87g.commands.ClearCommand;
 import com.indra87g.commands.CasinoCommand;
+import com.indra87g.commands.CalcCommand;
 
 public class Main extends PluginBase {
 
     @Override
     public void onEnable() {
         getLogger().info("§aplugin activated!");
+        if (getServer().getPluginManager().getPlugin("EconomyAPI") == null) {
+            getLogger().warning("EconomyAPI not found! Plugin disabled.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         registerCommands();
     }
     
@@ -17,15 +23,11 @@ public class Main extends PluginBase {
         this.getServer().getCommandMap().register("setblock", new SetBlockCommand());
         this.getServer().getCommandMap().register("clear", new ClearCommand());
         this.getServer().getCommandMap().register("casino", new CasinoCommand());
+        this.getServer().getCommandMap().register("calc", new CalcCommand());
     }
 
     @Override
     public void onDisable() {
         getLogger().info("§aplugin deactivated!");
-        if (getServer().getPluginManager().getPlugin("EconomyAPI") == null) {
-            getLogger().warning("EconomyAPI not found! Plugin disabled.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
     }
 }
