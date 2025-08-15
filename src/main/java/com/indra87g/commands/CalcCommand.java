@@ -6,8 +6,7 @@ import cn.nukkit.command.CommandSender;
 public class CalcCommand extends BaseCommand {
 
     public CalcCommand() {
-        super("calc", "Do a mathematical calculations ", "/calc <num1> <operator> <num2>");
-        this.setPermission("waffle.calc");
+        super("calc", "Do a mathematical calculations ", "/calc <num1> <operator> <num2>", "waffle.calc");
     }
 
     @Override
