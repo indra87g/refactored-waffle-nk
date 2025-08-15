@@ -11,6 +11,7 @@ on:
 jobs:
   convert:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,23 +23,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install marked marked-bbcode
+          npm install @bscotch/steam-bbcode
 
       - name: Convert README.md to BBCode
         run: |
           cat << 'EOF' > convert.js
-          const fs = require("fs");
-          const marked = require("marked");
-          const BBCodeRenderer = require("marked-bbcode");
+          import { md2bbcode } from '@bscotch/steam-bbcode';
+          import fs from 'fs';
 
-          marked.use(BBCodeRenderer());
-
-          const md = fs.readFileSync("README.md", "utf8");
-          const bbcode = marked(md);
-          fs.writeFileSync("README.bbcode", bbcode);
+          const md = fs.readFileSync('README.md', 'utf8');
+          const { bbcode } = md2bbcode(md);
+          fs.writeFileSync('README.bbcode', bbcode);
           EOF
 
-          node convert.js
+          node --loader ts-node/esm convert.js
 
       - name: Upload BBCode file
         uses: actions/upload-artifact@v4
