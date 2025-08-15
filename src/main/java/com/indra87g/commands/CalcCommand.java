@@ -1,25 +1,24 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
-import cn.nukkit.command.CommandSender;
 
 public class CalcCommand extends BaseCommand {
 
     public CalcCommand() {
-        super("calc", "Do a mathematical calculations ", "/calc <num1> <operator> <num2>", "waffle.calc");
+        super("calc", "Do a mathematical calculation", "/calc <num1> <operator> <num2>", "waffle.calc");
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
-        if (!testPermission(sender)) {
-            return true;
-        }
-
+    protected boolean validateArgs(String[] args, Player player) {
         if (args.length != 3) {
-            sender.sendMessage("§cUsage: /calc <num1> <operator> <num22>");
-            return true;
+            player.sendMessage("§cUsage: /calc <num1> <operator> <num2>");
+            return false;
         }
+        return true;
+    }
 
+    @Override
+    protected boolean handleCommand(Player player, String[] args) {
         double num1, num2;
         String operator = args[1];
         double result;
@@ -28,7 +27,7 @@ public class CalcCommand extends BaseCommand {
             num1 = Double.parseDouble(args[0]);
             num2 = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("§cInvalid number!");
+            player.sendMessage("§cInvalid number!");
             return true;
         }
 
@@ -45,17 +44,17 @@ public class CalcCommand extends BaseCommand {
                 break;
             case "/":
                 if (num2 == 0) {
-                    sender.sendMessage("§cCannot divide by zero!");
+                    player.sendMessage("§cCannot divide by zero!");
                     return true;
                 }
                 result = num1 / num2;
                 break;
             default:
-                sender.sendMessage("§cUnknown operator! Please use +, -, *, or /");
+                player.sendMessage("§cUnknown operator! Please use +, -, *, or /");
                 return true;
         }
 
-        sender.sendMessage("§aResult: §e" + result);
+        player.sendMessage("§aResult: §e" + result);
         return true;
     }
 }
