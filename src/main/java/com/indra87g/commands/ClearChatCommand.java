@@ -2,10 +2,10 @@ package com.indra87g.commands;
 
 import cn.nukkit.Player;
 
-public class ClearCommand extends BaseCommand {
+public class ClearChatCommand extends BaseCommand {
 
     public ClearCommand() {
-        super("clear", "Clear your chat", "/clear [amount]", "waffle.clear");
+        super("clearchat", "Clear your chat", "/clearchat [amount]", "waffle.clear.chat");
     }
 
     @Override
@@ -25,8 +25,8 @@ public class ClearCommand extends BaseCommand {
         if (args.length == 1) {
             try {
                 amount = Integer.parseInt(args[0]);
-                if (amount <= 0 || amount > 500) {
-                    player.sendMessage("§cAmount must be between 1 - 500.");
+                if (amount <= 100 || amount > 500) {
+                    player.sendMessage("§cAmount must be between 100 - 500.");
                     return false;
                 }
             } catch (NumberFormatException e) {
