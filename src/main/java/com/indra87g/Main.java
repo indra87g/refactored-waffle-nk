@@ -1,6 +1,8 @@
 package com.indra87g;
 
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.CommandMap;
 import com.indra87g.commands.SetBlockCommand;
 import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
@@ -17,6 +19,15 @@ public class Main extends PluginBase {
             return;
         }
         registerCommands();
+        CommandMap map = getServer().getCommandMap();
+        
+        Command existing = map.getCommand("setblock");
+        if (existing != null) {
+            getLogger().warning("The /setblock command is already registered in another plugin!");
+            getLogger().warning("Trying to replace the command with /wsb...");
+        }
+        
+        map.register("wsb", new com.indra87g.commands.SetBlockCommand());
     }
     
     private void registerCommands() {
