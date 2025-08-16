@@ -18,23 +18,19 @@ public class Main extends PluginBase {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        registerCommands();
-        CommandMap map = getServer().getCommandMap();
-        
-        Command existing = map.getCommand("setblock");
-        if (existing != null) {
-            getLogger().warning("The /setblock command is already registered in another plugin!");
-            getLogger().warning("Trying to replace the command with /wsb...");
+        CommandMap map = this.getServer().getCommandMap();
+
+        Command[] commands = new Command[]{
+            new SetBlockCommand(),
+            new ClearChatCommand(),
+            new CasinoCommand(),
+            new CalcCommand()
+        };
+        for (Command cmd : commands) {
+            map.register("waffle", cmd); // "waffle" = namespace plugin kamu
         }
-        
-        map.register("wsb", new com.indra87g.commands.SetBlockCommand());
-    }
-    
-    private void registerCommands() {
-        this.getServer().getCommandMap().register("setblock", new SetBlockCommand());
-        this.getServer().getCommandMap().register("clearchat", new ClearChatCommand());
-        this.getServer().getCommandMap().register("casino", new CasinoCommand());
-        this.getServer().getCommandMap().register("calc", new CalcCommand());
+
+        getLogger().info("All commands are successfully registered !");
     }
 
     @Override
