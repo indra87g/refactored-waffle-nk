@@ -2,7 +2,7 @@ package com.indra87g;
 
 import cn.nukkit.plugin.PluginBase;
 import com.indra87g.commands.SetBlockCommand;
-import com.indra87g.commands.ClearCommand;
+import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
 
@@ -21,7 +21,7 @@ public class Main extends PluginBase {
     
     private void registerCommands() {
         this.getServer().getCommandMap().register("setblock", new SetBlockCommand());
-        this.getServer().getCommandMap().register("clear", new ClearCommand());
+        this.getServer().getCommandMap().register("clearchat", new ClearChatCommand());
         this.getServer().getCommandMap().register("casino", new CasinoCommand());
         this.getServer().getCommandMap().register("calc", new CalcCommand());
     }
