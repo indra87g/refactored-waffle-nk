@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 
 public class ClearChatCommand extends BaseCommand {
 
-    public ClearCommand() {
+    public ClearChatCommand() {
         super("clearchat", "Clear your chat", "/clearchat [amount]", "waffle.clear.chat");
     }
 
@@ -25,7 +25,7 @@ public class ClearChatCommand extends BaseCommand {
         if (args.length == 1) {
             try {
                 amount = Integer.parseInt(args[0]);
-                if (amount <= 100 || amount > 500) {
+                if (amount < 100 || amount > 500) {
                     player.sendMessage("§cAmount must be between 100 - 500.");
                     return false;
                 }
