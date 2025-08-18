@@ -20,7 +20,7 @@ public abstract class BaseCommand extends Command {
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCommand ini hanya bisa dijalankan oleh player.");
+            sender.sendMessage("§cThis command only for player!");
             return false;
         }
 
