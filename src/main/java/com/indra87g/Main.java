@@ -8,7 +8,7 @@ import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
 import cn.nukkit.utils.Config;
-import com.indra87g.listener.CommandCooldownListener;
+import com.indra87g.listeners.CommandCooldownListener;
 
 import java.io.File;
 import java.util.*;
