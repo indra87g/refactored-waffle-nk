@@ -8,7 +8,7 @@ import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
 import cn.nukkit.utils.Config;
-import com.indra87g.listeners.CommandCooldownListener;
+import com.indra87g.listeners.CooldownListener;
 
 import java.io.File;
 import java.util.*;
@@ -57,7 +57,7 @@ public class Main extends PluginBase {
         }
 
         // Register the command cooldown listener (global, for all plugins/commands)
-        getServer().getPluginManager().registerEvents(new CommandCooldownListener(this), this);
+        getServer().getPluginManager().registerEvents(new CooldownListener(this), this);
         getLogger().info("All commands, aliases, and cooldown listener registered!");
     }
 
