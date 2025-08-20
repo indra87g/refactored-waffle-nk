@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class CommandCooldownListener implements Listener {
+public class CooldownListener implements Listener {
 
     private final Config cooldownConfig;
     // <playerUUID, <command, lastUsedTimeMillis>>
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
 
-    public CommandCooldownListener(PluginBase plugin) {
+    public CooldownListener(PluginBase plugin) {
         plugin.saveResource("cooldowns.yml", false);
         this.cooldownConfig = new Config(plugin.getDataFolder() + "/cooldowns.yml", Config.YAML);
     }
