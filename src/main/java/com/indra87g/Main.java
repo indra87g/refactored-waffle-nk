@@ -10,11 +10,16 @@ import com.indra87g.commands.CalcCommand;
 import cn.nukkit.utils.Config;
 import com.indra87g.listeners.CooldownListener;
 
+// Tambahan untuk reward
+import com.indra87g.rewards.TimeRewardManager;
+
 import java.io.File;
 import java.util.*;
 
 public class Main extends PluginBase {
     private Map<String, List<String>> aliasesMap = new HashMap<>();
+    // Tambahan field baru
+    private TimeRewardManager timeRewardManager;
 
     @Override
     public void onEnable() {
@@ -26,6 +31,7 @@ public class Main extends PluginBase {
         }
         this.saveResource("aliases.yml", false);
         this.saveResource("cooldowns.yml", false);
+        this.saveResource("time_rewards.yml", false);
         loadAliases();
 
         CommandMap map = this.getServer().getCommandMap();
@@ -38,10 +44,7 @@ public class Main extends PluginBase {
         );
 
         for (Command cmd : commands) {
-            // Register main command
             map.register("waffle", cmd);
-
-            // Register command if any
             List<String> aliases = aliasesMap.getOrDefault(cmd.getName().toLowerCase(), Collections.emptyList());
             for (String alias : aliases) {
                 Command aliasCmd = new Command(alias) {
@@ -55,10 +58,11 @@ public class Main extends PluginBase {
                 map.register("waffle", aliasCmd);
             }
         }
-
-        // Register the command cooldown listener (global, for all plugins/commands)
         getServer().getPluginManager().registerEvents(new CooldownListener(this), this);
         getLogger().info("All commands, aliases, and cooldown listener registered!");
+
+        this.timeRewardManager = new TimeRewardManager(this);
+        getLogger().info("TimeRewardManager enabled!");
     }
 
     private void loadAliases() {
@@ -77,4 +81,4 @@ public class Main extends PluginBase {
     public void onDisable() {
         getLogger().info("§aplugin deactivated!");
     }
-}
+        }
