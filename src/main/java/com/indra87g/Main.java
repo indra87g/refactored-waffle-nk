@@ -3,23 +3,25 @@ package com.indra87g;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandMap;
+import cn.nukkit.utils.Config;
 import com.indra87g.commands.SetBlockCommand;
 import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
-import cn.nukkit.utils.Config;
+import com.indra87g.commands.DailyCommand;
+
 import com.indra87g.listeners.CooldownListener;
 
-// Tambahan untuk reward
 import com.indra87g.rewards.TimeRewardManager;
+import com.indra87g.rewards.DailyRewardManager;
 
 import java.io.File;
 import java.util.*;
 
 public class Main extends PluginBase {
     private Map<String, List<String>> aliasesMap = new HashMap<>();
-    // Tambahan field baru
     private TimeRewardManager timeRewardManager;
+    private DailyRewardManager dailyRewardManager;
 
     @Override
     public void onEnable() {
@@ -32,6 +34,9 @@ public class Main extends PluginBase {
         this.saveResource("aliases.yml", false);
         this.saveResource("cooldowns.yml", false);
         this.saveResource("time_rewards.yml", false);
+        this.saveResource("daily_rewards.yml", false); 
+        this.dailyRewardManager = new DailyRewardManager(getDataFolder().getPath()); 
+
         loadAliases();
 
         CommandMap map = this.getServer().getCommandMap();
@@ -40,7 +45,8 @@ public class Main extends PluginBase {
             new SetBlockCommand(),
             new ClearChatCommand(),
             new CasinoCommand(),
-            new CalcCommand()
+            new CalcCommand(),
+            new DailyCommand(DailyRewardManager)
         );
 
         for (Command cmd : commands) {
