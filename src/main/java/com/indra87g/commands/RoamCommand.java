@@ -89,4 +89,9 @@ public class RoamCommand extends BaseCommand {
             player.setGamemode(Player.SURVIVAL);
         }
     }
+    
+    public void forceCancel(Player player) {
+        cancelRoam(player);
+    }
+
 }
