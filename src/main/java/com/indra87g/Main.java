@@ -4,6 +4,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandMap;
 import cn.nukkit.utils.Config;
+
 import com.indra87g.commands.SetBlockCommand;
 import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
@@ -46,7 +47,7 @@ public class Main extends PluginBase {
             new ClearChatCommand(),
             new CasinoCommand(),
             new CalcCommand(),
-            new DailyCommand(DailyRewardManager)
+            new DailyCommand(dailyRewardManager)
         );
 
         for (Command cmd : commands) {
