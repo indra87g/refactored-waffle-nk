@@ -41,13 +41,15 @@ public class Main extends PluginBase {
         loadAliases();
 
         CommandMap map = this.getServer().getCommandMap();
+        RoamCommand roamCmd = new RoamCommand(this);
 
         List<Command> commands = Arrays.asList(
             new SetBlockCommand(),
             new ClearChatCommand(),
             new CasinoCommand(),
             new CalcCommand(),
-            new DailyCommand(dailyRewardManager)
+            new DailyCommand(dailyRewardManager),
+            roamCmd
         );
 
         for (Command cmd : commands) {
@@ -66,10 +68,11 @@ public class Main extends PluginBase {
             }
         }
         getServer().getPluginManager().registerEvents(new CooldownListener(this), this);
-        getLogger().info("All commands, aliases, and cooldown listener registered!");
+        getServer().getPluginManager().registerEvents(new RoamListener(roamCmd), this);
+        getLogger().info("All commands, aliases, and listeners registered!");
 
         this.timeRewardManager = new TimeRewardManager(this);
-        getLogger().info("TimeRewardManager enabled!");
+        getLogger().info("TimeRewardManager and DailyRewardManager enabled!");
     }
 
     private void loadAliases() {
