@@ -10,7 +10,9 @@ import com.indra87g.commands.ClearChatCommand;
 import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
 import com.indra87g.commands.DailyCommand;
+import com.indra87g.commands.RoamCommand;
 
+import com.indra87g.listeners.RoamListener;
 import com.indra87g.listeners.CooldownListener;
 
 import com.indra87g.rewards.TimeRewardManager;
