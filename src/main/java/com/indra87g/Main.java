@@ -22,7 +22,10 @@ import java.io.File;
 import java.util.*;
 
 public class Main extends PluginBase {
-    private Map<String, List<String>> aliasesMap = new HashMap<>();
+    private Map<String, Integer> commandCooldowns = new HashMap<>();
+    private Map<String, Boolean> commandHidden = new HashMap<>();
+    private Map<String, List<String>> commandAliases = new HashMap<>();
+
     private TimeRewardManager timeRewardManager;
     private DailyRewardManager dailyRewardManager;
 
@@ -34,13 +37,13 @@ public class Main extends PluginBase {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        this.saveResource("aliases.yml", false);
-        this.saveResource("cooldowns.yml", false);
+        this.saveResource("commands.yml", false);
         this.saveResource("time_rewards.yml", false);
-        this.saveResource("daily_rewards.yml", false); 
-        this.dailyRewardManager = new DailyRewardManager(getDataFolder().getPath()); 
+        this.saveResource("daily_rewards.yml", false);
+        this.dailyRewardManager = new DailyRewardManager(getDataFolder().getPath());
 
-        loadAliases();
+        // load config commands
+        loadCommandConfig();
 
         CommandMap map = this.getServer().getCommandMap();
         RoamCommand roamCmd = new RoamCommand(this);
@@ -54,9 +57,11 @@ public class Main extends PluginBase {
             roamCmd
         );
 
+        // Register commands + aliases
         for (Command cmd : commands) {
             map.register("waffle", cmd);
-            List<String> aliases = aliasesMap.getOrDefault(cmd.getName().toLowerCase(), Collections.emptyList());
+
+            List<String> aliases = commandAliases.getOrDefault(cmd.getName().toLowerCase(), Collections.emptyList());
             for (String alias : aliases) {
                 Command aliasCmd = new Command(alias) {
                     @Override
@@ -69,23 +74,33 @@ public class Main extends PluginBase {
                 map.register("waffle", aliasCmd);
             }
         }
-        getServer().getPluginManager().registerEvents(new CooldownListener(this), this);
+
+        // Register listeners (cooldown + roam)
+        getServer().getPluginManager().registerEvents(new CooldownListener(commandCooldowns, commandHidden), this);
         getServer().getPluginManager().registerEvents(new RoamListener(roamCmd), this);
+
         getLogger().info("All commands, aliases, and listeners registered!");
 
         this.timeRewardManager = new TimeRewardManager(this);
         getLogger().info("TimeRewardManager and DailyRewardManager enabled!");
     }
 
-    private void loadAliases() {
-        File configFile = new File(getDataFolder(), "aliases.yml");
+    private void loadCommandConfig() {
+        File configFile = new File(getDataFolder(), "commands.yml");
         if (!configFile.exists()) {
-            this.saveResource("aliases.yml", false);
+            this.saveResource("commands.yml", false);
         }
         Config config = new Config(configFile, Config.YAML);
+
         for (String key : config.getKeys(false)) {
-            List<String> aliasList = config.getStringList(key);
-            aliasesMap.put(key.toLowerCase(), new ArrayList<>(aliasList));
+            String cmd = key.toLowerCase();
+            int cooldown = config.getInt(cmd + ".cooldown", 0);
+            boolean hidden = config.getBoolean(cmd + ".hidden", false);
+            List<String> aliases = config.getStringList(cmd + ".aliases");
+
+            commandCooldowns.put(cmd, cooldown);
+            commandHidden.put(cmd, hidden);
+            commandAliases.put(cmd, new ArrayList<>(aliases));
         }
     }
 
@@ -93,4 +108,4 @@ public class Main extends PluginBase {
     public void onDisable() {
         getLogger().info("§aplugin deactivated!");
     }
-        }
+}
