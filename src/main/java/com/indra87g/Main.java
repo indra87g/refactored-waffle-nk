@@ -23,7 +23,7 @@ import java.util.*;
 
 public class Main extends PluginBase {
     private Map<String, Integer> commandCooldowns = new HashMap<>();
-    private Map<String, Boolean> commandHidden = new HashMap<>();
+    private Set<String> commandHidden = new HashSet<>();
     private Map<String, List<String>> commandAliases = new HashMap<>();
 
     private TimeRewardManager timeRewardManager;
@@ -31,18 +31,18 @@ public class Main extends PluginBase {
 
     @Override
     public void onEnable() {
-        getLogger().info("§aplugin activated!");
+        getLogger().info("§aPlugin activated!");
         if (getServer().getPluginManager().getPlugin("EconomyAPI") == null) {
             getLogger().warning("EconomyAPI not found! Plugin disabled.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
         this.saveResource("commands.yml", false);
         this.saveResource("time_rewards.yml", false);
         this.saveResource("daily_rewards.yml", false);
         this.dailyRewardManager = new DailyRewardManager(getDataFolder().getPath());
 
-        // load config commands
         loadCommandConfig();
 
         CommandMap map = this.getServer().getCommandMap();
@@ -57,7 +57,6 @@ public class Main extends PluginBase {
             roamCmd
         );
 
-        // Register commands + aliases
         for (Command cmd : commands) {
             map.register("waffle", cmd);
 
@@ -75,10 +74,8 @@ public class Main extends PluginBase {
             }
         }
 
-        // Register listeners (cooldown + roam)
-        getServer().getPluginManager().registerEvents(new CooldownListener(commandCooldowns, commandHidden), this);
+        getServer().getPluginManager().registerEvents(new CooldownListener(this, commandCooldowns, commandHidden), this);
         getServer().getPluginManager().registerEvents(new RoamListener(roamCmd), this);
-
         getLogger().info("All commands, aliases, and listeners registered!");
 
         this.timeRewardManager = new TimeRewardManager(this);
@@ -98,14 +95,16 @@ public class Main extends PluginBase {
             boolean hidden = config.getBoolean(cmd + ".hidden", false);
             List<String> aliases = config.getStringList(cmd + ".aliases");
 
-            commandCooldowns.put(cmd, cooldown);
-            commandHidden.put(cmd, hidden);
-            commandAliases.put(cmd, new ArrayList<>(aliases));
+            if (cooldown > 0) commandCooldowns.put(cmd, cooldown);
+            if (hidden) commandHidden.add(cmd);
+            if (aliases != null && !aliases.isEmpty()) {
+                commandAliases.put(cmd, new ArrayList<>(aliases));
+            }
         }
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("§aplugin deactivated!");
+        getLogger().info("§aPlugin deactivated!");
     }
 }
