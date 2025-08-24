@@ -3,23 +3,24 @@ package com.indra87g.listeners;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
+import cn.nukkit.event.player.PlayerCommandSendEvent;
 import cn.nukkit.Player;
-import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.Config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class CooldownListener implements Listener {
 
-    private final Config cooldownConfig;
+    private final Map<String, Integer> commandCooldowns;
+    private final Map<String, Boolean> commandHidden;
     // <playerUUID, <command, lastUsedTimeMillis>>
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
 
-    public CooldownListener(PluginBase plugin) {
-        plugin.saveResource("cooldowns.yml", false);
-        this.cooldownConfig = new Config(plugin.getDataFolder() + "/cooldowns.yml", Config.YAML);
+    public CooldownListener(Map<String, Integer> commandCooldowns, Map<String, Boolean> commandHidden) {
+        this.commandCooldowns = commandCooldowns;
+        this.commandHidden = commandHidden;
     }
 
     @EventHandler
@@ -28,10 +29,11 @@ public class CooldownListener implements Listener {
         if (!msg.startsWith("/")) return;
 
         String[] split = msg.substring(1).split(" ");
-        String command = split[0].toLowerCase();
+        if (split.length == 0) return;
 
-        int cooldown = cooldownConfig.getInt(command, 0);
-        if (cooldown <= 0) return; // No cooldown set
+        String command = split[0].toLowerCase();
+        int cooldown = commandCooldowns.getOrDefault(command, 0);
+        if (cooldown <= 0) return; // no cooldown set
 
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
@@ -48,5 +50,11 @@ public class CooldownListener implements Listener {
             playerCooldowns.put(command, now);
             cooldowns.put(uuid, playerCooldowns);
         }
+    }
+
+    @EventHandler
+    public void onCommandSend(PlayerCommandSendEvent event) {
+        Set<String> commands = event.getCommands();
+        commands.removeIf(cmd -> commandHidden.getOrDefault(cmd.toLowerCase(), false));
     }
 }
