@@ -11,9 +11,11 @@ import com.indra87g.commands.CasinoCommand;
 import com.indra87g.commands.CalcCommand;
 import com.indra87g.commands.DailyCommand;
 import com.indra87g.commands.RoamCommand;
+import com.indra87g.commands.ServersCommand;
 
 import com.indra87g.listeners.RoamListener;
 import com.indra87g.listeners.CooldownListener;
+import com.indra87g.listeners.ServersListener;
 
 import com.indra87g.rewards.TimeRewardManager;
 import com.indra87g.rewards.DailyRewardManager;
@@ -28,7 +30,7 @@ public class Main extends PluginBase {
 
     private TimeRewardManager timeRewardManager;
     private DailyRewardManager dailyRewardManager;
-
+    
     @Override
     public void onEnable() {
         getLogger().info("§aPlugin activated!");
@@ -47,6 +49,7 @@ public class Main extends PluginBase {
 
         CommandMap map = this.getServer().getCommandMap();
         RoamCommand roamCmd = new RoamCommand(this);
+        ServersCommand serversCmd = new ServersCommand();
 
         List<Command> commands = Arrays.asList(
             new SetBlockCommand(),
@@ -54,7 +57,8 @@ public class Main extends PluginBase {
             new CasinoCommand(),
             new CalcCommand(),
             new DailyCommand(dailyRewardManager),
-            roamCmd
+            roamCmd,
+            serversCmd
         );
 
         for (Command cmd : commands) {
@@ -76,6 +80,7 @@ public class Main extends PluginBase {
 
         getServer().getPluginManager().registerEvents(new CooldownListener(this, commandCooldowns, commandHidden), this);
         getServer().getPluginManager().registerEvents(new RoamListener(roamCmd), this);
+        getServer().getPluginManager().registerEvents(new ServersListener(serversCmd), this);
         getLogger().info("All commands, aliases, and listeners registered!");
 
         this.timeRewardManager = new TimeRewardManager(this);
