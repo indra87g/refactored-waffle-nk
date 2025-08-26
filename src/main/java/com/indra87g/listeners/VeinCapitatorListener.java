@@ -22,7 +22,7 @@ public class VeinCapitatorListener implements Listener {
     private Set<Integer> ores = new HashSet<>();
     private int maxBlocks;
 
-    public TreeOreAutoBreakListener(Plugin plugin) {
+    public VeinCapitatotListener(Plugin plugin) {
         this.plugin = plugin;
         loadSettings();
     }
