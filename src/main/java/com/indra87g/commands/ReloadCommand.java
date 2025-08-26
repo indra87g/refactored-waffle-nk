@@ -20,7 +20,7 @@ public class ReloadCommand extends BaseCommand {
         if (!this.testPermission(sender)) {
             return false;
         }
-        
+
         if (args.length != 1) {
             sender.sendMessage("§cUsage: /reload <pluginName>");
             return false;
@@ -72,7 +72,6 @@ public class ReloadCommand extends BaseCommand {
         return true;
     }
 
-    @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) {
         List<String> completions = new ArrayList<>();
 
