@@ -12,6 +12,7 @@ import com.indra87g.commands.CalcCommand;
 import com.indra87g.commands.DailyCommand;
 import com.indra87g.commands.RoamCommand;
 import com.indra87g.commands.ServersCommand;
+import com.indra87g.commands.ReloadCommand;
 
 import com.indra87g.listeners.RoamListener;
 import com.indra87g.listeners.CooldownListener;
@@ -59,7 +60,8 @@ public class Main extends PluginBase {
             new CalcCommand(),
             new DailyCommand(dailyRewardManager),
             roamCmd,
-            serversCmd
+            serversCmd,
+            new ReloadCommand()
         );
 
         for (Command cmd : commands) {
