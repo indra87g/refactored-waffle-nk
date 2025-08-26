@@ -1,22 +1,26 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Server;
-import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
+import cn.nukkit.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReloadCommand extends Command {
+public class ReloadCommand extends BaseCommand {
 
     public ReloadCommand() {
-        super("reload", "Reload a plugin", "/reload <pluginName>", new String[]{"waffle.reload"});
+        super("reload", "Reload a plugin", "/reload <pluginName>", "waffle.reload");
     }
 
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
+        if (!this.testPermission(sender)) {
+            return false;
+        }
+        
         if (args.length != 1) {
             sender.sendMessage("§cUsage: /reload <pluginName>");
             return false;
@@ -30,10 +34,41 @@ public class ReloadCommand extends Command {
             return true;
         }
 
+        try {
+            Server.getInstance().getPluginManager().disablePlugin(plugin);
+            Server.getInstance().getPluginManager().enablePlugin(plugin);
+            sender.sendMessage("§aPlugin " + pluginName + " reloaded!");
+            return true;
+        } catch (Exception e) {
+            sender.sendMessage("§cError reloading plugin: " + pluginName);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    protected boolean validateArgs(String[] args, Player player) {
+        if (args.length != 1) {
+            player.sendMessage("§cUsage: /reload <pluginName>");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected boolean handleCommand(Player player, String[] args) {
+        String pluginName = args[0];
+        Plugin plugin = Server.getInstance().getPluginManager().getPlugin(pluginName);
+
+        if (plugin == null) {
+            player.sendMessage("§cPlugin not found: " + pluginName);
+            return true;
+        }
+
         Server.getInstance().getPluginManager().disablePlugin(plugin);
         Server.getInstance().getPluginManager().enablePlugin(plugin);
-
-        sender.sendMessage("§aPlugin " + pluginName + " reloaded!");
+        
+        player.sendMessage("§aPlugin " + pluginName + " reloaded!");
         return true;
     }
 
