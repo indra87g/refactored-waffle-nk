@@ -22,10 +22,9 @@ public class VeinCapitatorListener implements Listener {
     private Set<Integer> ores = new HashSet<>();
     private int maxBlocks;
 
-    public VeinCapitatotListener(Plugin plugin) {
+    public VeinCapitatorListener(Plugin plugin) {
         this.plugin = plugin;
         loadSettings();
-        return;
     }
 
     private void loadSettings() {
