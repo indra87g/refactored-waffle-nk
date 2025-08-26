@@ -4,9 +4,11 @@ import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
-import cn.nukkit.utils.Config;
 import cn.nukkit.plugin.Plugin;
+import cn.nukkit.utils.Config;
 import cn.nukkit.network.protocol.TransferPacket;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.scheduler.NukkitRunnable;
 
 import java.io.File;
 import java.util.*;
@@ -17,7 +19,7 @@ public class ServersCommand extends BaseCommand {
     private final List<ServerEntry> servers = new ArrayList<>();
 
     public ServersCommand(Plugin plugin) {
-        super("servers", "Select target server", "/servers", "waffle.servers");
+        super("servers", "Select a server to join", "/servers", "waffle.servers");
         this.plugin = plugin;
         loadServers();
     }
@@ -45,11 +47,11 @@ public class ServersCommand extends BaseCommand {
     @Override
     protected boolean handleCommand(Player player, String[] args) {
         if (servers.isEmpty()) {
-            player.sendMessage("§cNo servers on servers.yml!");
+            player.sendMessage("§cNo servers found in servers.yml!");
             return true;
         }
 
-        FormWindowSimple form = new FormWindowSimple("§6Server Selector", "Select target server:");
+        FormWindowSimple form = new FormWindowSimple("§6Server Selector", "Select your destination server:");
         for (ServerEntry entry : servers) {
             form.addButton(new ElementButton(entry.getName()));
         }
@@ -61,14 +63,40 @@ public class ServersCommand extends BaseCommand {
         if (buttonIndex < 0 || buttonIndex >= servers.size()) return;
 
         ServerEntry entry = servers.get(buttonIndex);
+        Vector3 startPos = player.clone().floor();
 
-        TransferPacket pk = new TransferPacket();
-        pk.address = entry.getIp();
-        pk.port = entry.getPort();
-        player.dataPacket(pk);
+        new NukkitRunnable() {
+            int count = 3;
 
-        player.sendMessage("§aConnecting to §e" + entry.getName() +
-                           " §7(" + entry.getIp() + ":" + entry.getPort() + ")");
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    this.cancel();
+                    return;
+                }
+
+                if (!player.clone().floor().equals(startPos)) {
+                    player.sendTitle("§cCancelled!", "§7You moved.", 0, 40, 10);
+                    player.sendMessage("§eTransfer cancelled because you moved.");
+                    this.cancel();
+                    return;
+                }
+
+                if (count > 0) {
+                    player.sendTitle("§eConnecting...", "§c" + count + " §7(Do not move!)", 0, 20, 0);
+                    count--;
+                } else {
+                    TransferPacket pk = new TransferPacket();
+                    pk.address = entry.getIp();
+                    pk.port = entry.getPort();
+                    player.dataPacket(pk);
+
+                    player.sendMessage("§aConnecting to §e" + entry.getName() +
+                            " §7(" + entry.getIp() + ":" + entry.getPort() + ")");
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0, 20);
     }
 
     private static class ServerEntry {
