@@ -3,6 +3,7 @@ package com.indra87g.commands;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 public class ReloadCommand extends Command {
 
     public ReloadCommand() {
-        super("reload", "Reload a plugin", "/reload <pluginName>", "waffle.reload");
+        super("reload", "Reload a plugin", "/reload <pluginName>", new String[]{"waffle.reload"});
     }
 
     @Override
@@ -37,7 +38,7 @@ public class ReloadCommand extends Command {
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
