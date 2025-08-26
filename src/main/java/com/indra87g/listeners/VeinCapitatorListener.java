@@ -25,6 +25,7 @@ public class VeinCapitatorListener implements Listener {
     public VeinCapitatotListener(Plugin plugin) {
         this.plugin = plugin;
         loadSettings();
+        return;
     }
 
     private void loadSettings() {
