@@ -49,7 +49,7 @@ public class Main extends PluginBase {
 
         CommandMap map = this.getServer().getCommandMap();
         RoamCommand roamCmd = new RoamCommand(this);
-        ServersCommand serversCmd = new ServersCommand();
+        ServersCommand serversCmd = new ServersCommand(this);
 
         List<Command> commands = Arrays.asList(
             new SetBlockCommand(),
