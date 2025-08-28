@@ -58,13 +58,13 @@ public class RoamCommand extends BaseCommand {
             }
             int minutes = roamMinutes.getOrDefault(player.getUniqueId(), 0);
             cancelRoam(player);
-            player.sendMessage("§aRoam ender! Total money spend: " + (minutes * 150));
+            player.sendMessage("§aRoam ended! Total money spend: " + (minutes * 150));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("trial")) {
-            player.setGamemode(Player.CREATIVE);
-            player.sendMessage("§aTrial mode started! You can use creative mode for 1 minute.");
+            player.setGamemode(Player.SPECTATOR);
+            player.sendMessage("§aTrial mode started! You can use spectator mode for 1 minute.");
             plugin.getServer().getScheduler().scheduleDelayedTask(plugin, () -> {
                 if (player.isOnline() && player.getGamemode() == Player.CREATIVE) {
                     player.setGamemode(Player.SURVIVAL);
