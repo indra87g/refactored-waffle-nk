@@ -1,0 +1,45 @@
+reward1:
+    - type: money
+      amount: 1000
+
+    - type: item
+      id: 260
+      amount: 10
+
+reward2:
+    - type: exp
+      amount: 100
+
+reward3:
+    - type: item
+      id: 265
+      amount: 32
+
+    - type: effect
+      effect: SPEED
+      duration: 300
+      amplifier: 2
+
+reward4:
+    - type: item
+      id: 264
+      amount: 15
+
+reward5:
+    - type: money
+      amount: 200
+
+reward6:
+    - type: exp
+      amount: 200
+
+reward7:
+    - type: item
+      id: 322
+      amount: 1
+
+messages:
+  success: "You have claimed your daily reward (Day %day%)!"
+  already_claimed: "You already claimed your daily reward today!"
+  not_available: "Daily reward not available now. Please try again later."
+
