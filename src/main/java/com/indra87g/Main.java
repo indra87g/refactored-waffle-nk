@@ -17,7 +17,6 @@ import com.indra87g.commands.ReloadCommand;
 import com.indra87g.listeners.RoamListener;
 import com.indra87g.listeners.CooldownListener;
 import com.indra87g.listeners.ServersListener;
-import com.indra87g.listeners.VeinCapitatorListener;
 
 import com.indra87g.rewards.TimeRewardManager;
 import com.indra87g.rewards.DailyRewardManager;
@@ -84,7 +83,6 @@ public class Main extends PluginBase {
         getServer().getPluginManager().registerEvents(new CooldownListener(this, commandCooldowns, commandHidden), this);
         getServer().getPluginManager().registerEvents(new RoamListener(roamCmd), this);
         getServer().getPluginManager().registerEvents(new ServersListener(serversCmd), this);
-        getServer().getPluginManager().registerEvents(new VeinCapitatorListener(this), this);
         getLogger().info("All commands, aliases, and listeners registered!");
 
         this.timeRewardManager = new TimeRewardManager(this);
