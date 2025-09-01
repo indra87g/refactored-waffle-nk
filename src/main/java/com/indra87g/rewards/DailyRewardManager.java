@@ -1,105 +1,149 @@
-package com.indra87g.rewards;
+package com.indra87g.daily;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Config;
 import me.onebone.economyapi.EconomyAPI;
 
 import java.io.File;
-import java.time.LocalDate;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 public class DailyRewardManager {
-    private final Config claimData;
-    private final Config config;
-    private final String dataFileName = "daily_claims.yml";
-    private final String configFileName = "daily_rewards.yml";
+    private final Config dataConfig;
+    private final Config mainConfig;
 
-    public DailyRewardManager(String dataFolder) {
-        File dataFile = new File(dataFolder, dataFileName);
-        File configFile = new File(dataFolder, configFileName);
-        if (!dataFile.exists()) {
-            try { dataFile.createNewFile(); } catch (Exception ignored) {}
-        }
-        this.claimData = new Config(dataFile, Config.YAML);
-        this.config = new Config(configFile, Config.YAML);
+    private final ZoneId zoneId;
+    private final LocalTime resetTime;
+
+    public DailyRewardManager(File configFile, File dataFolder) {
+        this.mainConfig = new Config(configFile, Config.YAML);
+
+        File dataFile = new File(dataFolder, "players.yml");
+        this.dataConfig = new Config(dataFile, Config.YAML);
+
+        this.zoneId = ZoneId.of(mainConfig.getString("timezone", "UTC"));
+        this.resetTime = LocalTime.parse(mainConfig.getString("claim_reset", "00:00"));
     }
 
-    @SuppressWarnings("unchecked")
-    public String claim(Player player) {
-        String name = player.getName();
-        LocalDate today = LocalDate.now();
-        String todayStr = today.toString();
+    public boolean claimReward(Player player) {
+        String name = player.getName().toLowerCase();
 
-        String lastClaim = claimData.getString(name + ".last_claim", "");
-        if (todayStr.equals(lastClaim)) {
-            return getMsg("already_claimed");
+        long lastClaim = dataConfig.getLong(name + ".last_claim", 0);
+        int streak = dataConfig.getInt(name + ".streak", 0);
+
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        ZonedDateTime lastReset = getResetTime(now);
+        ZonedDateTime prevReset = lastReset.minusDays(1);
+
+        boolean alreadyClaimed = lastClaim >= lastReset.toEpochSecond();
+        if (alreadyClaimed) {
+            player.sendMessage(mainConfig.getString("messages.already_claimed"));
+            return false;
         }
 
-        int dayOfWeek = today.getDayOfWeek().getValue(); // 1-7
-        String rewardKey = "reward" + dayOfWeek;
-
-        List<Map<String, Object>> rewardList = (List<Map<String, Object>>) config.getNested("rewards." + rewardKey);
-        if (rewardList == null) {
-            return getMsg("not_available");
+        if (lastClaim >= prevReset.toEpochSecond() && lastClaim < lastReset.toEpochSecond()) {
+            streak++;
+        } else {
+            streak = 1;
         }
 
-        for (Map<String, Object> reward : rewardList) {
-            String type = (String) reward.get("type");
-            if ("item".equalsIgnoreCase(type)) {
-                int id = (int) reward.getOrDefault("id", 1);
-                int amount = (int) reward.getOrDefault("amount", 1);
-                Item item = Item.get(id, 0, amount);
-                player.getInventory().addItem(item);
-            } else if ("money".equalsIgnoreCase(type)) {
-                double amount = Double.parseDouble(reward.get("amount").toString());
-                EconomyAPI.getInstance().addMoney(player, amount);
-            } else if ("effect".equalsIgnoreCase(type)) {
-                String effectStr = (String) reward.getOrDefault("effect", "SPEED");
-                int duration = (int) reward.getOrDefault("duration", 600);
-                int amplifier = (int) reward.getOrDefault("amplifier", 1);
-                Effect effect = Effect.getEffectByName(effectStr);
-                if (effect != null) {
-                    effect.setDuration(duration * 20);
-                    effect.setAmplifier(amplifier);
-                    player.addEffect(effect);
-                }
-            } else if ("exp".equalsIgnoreCase(type)) {
-                int amount = (int) reward.getOrDefault("amount", 1);
-                player.addExperience(amount);
-            } else if ("command".equalsIgnoreCase(type)) {
-                String cmd = (String) reward.getOrDefault("command", "");
-                boolean asConsole = Boolean.parseBoolean(reward.getOrDefault("asConsole", "true").toString());
+        dataConfig.set(name + ".last_claim", now.toEpochSecond());
+        dataConfig.set(name + ".streak", streak);
+        dataConfig.save();
 
-                if (!cmd.isEmpty()) {
-                    cmd = cmd.replace("%player%", player.getName());
-                    if (asConsole) {
-                        player.getServer().dispatchCommand(player.getServer().getConsoleSender(), cmd);
-                    } else {
-                        player.getServer().dispatchCommand(player, cmd);
+        boolean rewardGiven = false;
+
+        String today = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (mainConfig.exists("special_rewards." + today)) {
+            giveRewards(player, mainConfig.getMapList("special_rewards." + today));
+            player.sendMessage(mainConfig.getString("messages.special_reward")
+                    .replace("%date%", today));
+            rewardGiven = true;
+        }
+
+        int dayOfWeek = now.getDayOfWeek().getValue(); // Monday=1, Sunday=7
+        String rewardKey = "rewards.reward" + dayOfWeek;
+        if (mainConfig.isList(rewardKey)) {
+            giveRewards(player, mainConfig.getMapList(rewardKey));
+            player.sendMessage(mainConfig.getString("messages.success")
+                    .replace("%day%", now.getDayOfWeek().toString()));
+            rewardGiven = true;
+        }
+
+        // Streak reward
+        if (mainConfig.exists("streak_rewards." + streak)) {
+            giveRewards(player, mainConfig.getMapList("streak_rewards." + streak));
+            player.sendMessage(mainConfig.getString("messages.streak_bonus")
+                    .replace("%streak%", String.valueOf(streak)));
+            rewardGiven = true;
+        }
+
+        if (!rewardGiven) {
+            player.sendMessage(mainConfig.getString("messages.not_available"));
+        }
+
+        return rewardGiven;
+    }
+
+    private void giveRewards(Player player, List<Map> rewards) {
+        for (Map reward : rewards) {
+            String type = reward.get("type").toString().toLowerCase();
+            switch (type) {
+                case "item":
+                    int id = Integer.parseInt(reward.get("id").toString());
+                    int amount = Integer.parseInt(reward.get("amount").toString());
+                    player.getInventory().addItem(new Item(id, 0, amount));
+                    break;
+                case "money":
+                    double money = Double.parseDouble(reward.get("amount").toString());
+                    EconomyAPI.getInstance().addMoney(player, money);
+                    break;
+                case "effect":
+                    Effect effect = Effect.getEffectByName(reward.get("effect").toString().toUpperCase());
+                    int duration = Integer.parseInt(reward.get("duration").toString());
+                    int amplifier = Integer.parseInt(reward.get("amplifier").toString());
+                    if (effect != null) {
+                        effect.setDuration(duration * 20);
+                        effect.setAmplifier(amplifier);
+                        player.addEffect(effect);
                     }
-                }
+                    break;
+                case "exp":
+                    int exp = Integer.parseInt(reward.get("amount").toString());
+                    player.addExperience(exp);
+                    break;
+                case "command":
+                    String cmd = reward.get("command").toString()
+                            .replace("%player%", player.getName());
+                    Server.getInstance().dispatchCommand(
+                            Server.getInstance().getConsoleSender(), cmd);
+                    break;
             }
         }
-
-        claimData.set(name + ".last_claim", todayStr);
-        claimData.save();
-
-        String msg = getMsg("success");
-        msg = msg.replace("%day%", String.valueOf(dayOfWeek));
-        return msg;
     }
 
-    public boolean canClaim(Player player) {
-        String name = player.getName();
-        String todayStr = LocalDate.now().toString();
-        String lastClaim = claimData.getString(name + ".last_claim", "");
-        return !todayStr.equals(lastClaim);
+    private ZonedDateTime getResetTime(ZonedDateTime now) {
+        return now.withHour(resetTime.getHour())
+                  .withMinute(resetTime.getMinute())
+                  .withSecond(0)
+                  .withNano(0);
     }
 
-    private String getMsg(String key) {
-        return config.getSection("messages").getString(key, "Success!");
+    public int getStreak(Player player) {
+        String name = player.getName().toLowerCase();
+        return dataConfig.getInt(name + ".streak", 0);
+    }
+
+    public ZonedDateTime getNow() {
+        return ZonedDateTime.now(zoneId);
+    }
+
+    public boolean hasSpecialReward(String date) {
+        return mainConfig.exists("special_rewards." + date);
     }
 }
