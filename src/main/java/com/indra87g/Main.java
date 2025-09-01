@@ -44,8 +44,10 @@ public class Main extends PluginBase {
         this.saveResource("commands.yml", false);
         this.saveResource("time_rewards.yml", false);
         this.saveResource("daily_rewards.yml", false);
-        this.dailyRewardManager = new DailyRewardManager(getDataFolder().getPath());
 
+        File dailyConfig = new File(getDataFolder(), "daily_rewards.yml");
+        this.dailyRewardManager = new DailyRewardManager(dailyConfig, getDataFolder());
+        
         loadCommandConfig();
 
         CommandMap map = this.getServer().getCommandMap();
