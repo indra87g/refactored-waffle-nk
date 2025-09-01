@@ -2,7 +2,7 @@ package com.indra87g.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.utils.TextFormat;
-import com.indra87g.daily.DailyRewardManager;
+import com.indra87g.rewards.DailyRewardManager;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
