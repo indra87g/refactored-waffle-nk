@@ -69,6 +69,18 @@ public class DailyRewardManager {
             } else if ("exp".equalsIgnoreCase(type)) {
                 int amount = (int) reward.getOrDefault("amount", 1);
                 player.addExperience(amount);
+            } else if ("command".equalsIgnoreCase(type)) {
+                String cmd = (String) reward.getOrDefault("command", "");
+                boolean asConsole = Boolean.parseBoolean(reward.getOrDefault("asConsole", "true").toString());
+
+                if (!cmd.isEmpty()) {
+                    cmd = cmd.replace("%player%", player.getName());
+                    if (asConsole) {
+                        player.getServer().dispatchCommand(player.getServer().getConsoleSender(), cmd);
+                    } else {
+                        player.getServer().dispatchCommand(player, cmd);
+                    }
+                }
             }
         }
 
