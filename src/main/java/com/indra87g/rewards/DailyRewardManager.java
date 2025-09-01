@@ -1,4 +1,4 @@
-package com.indra87g.daily;
+package com.indra87g.rewards;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -75,7 +75,6 @@ public class DailyRewardManager {
             rewardGiven = true;
         }
 
-        // Streak reward
         if (mainConfig.exists("streak_rewards." + streak)) {
             giveRewards(player, mainConfig.getMapList("streak_rewards." + streak));
             player.sendMessage(mainConfig.getString("messages.streak_bonus")
