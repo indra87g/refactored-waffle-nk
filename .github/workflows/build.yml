@@ -1,6 +1,9 @@
 name: Build Nukkit Plugin
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -15,7 +18,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '20' # Ganti dengan versi Java sesuai kebutuhan plugin kamu
+        java-version: '8'
 
     - name: Cache Maven
       uses: actions/cache@v3

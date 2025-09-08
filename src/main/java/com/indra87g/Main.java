@@ -73,8 +73,17 @@ public class Main extends PluginBase {
             boolean hidden = config.getBoolean(cmd + ".hidden", false);
             List<String> aliases = config.getStringList(cmd + ".aliases");
 
-            if (cooldown > 0) commandCooldowns.put(cmd, cooldown);
-            if (hidden) commandHidden.add(cmd);
+            if (cooldown > 0) {
+                commandCooldowns.put(cmd, cooldown);
+                if (aliases != null) {
+                    for (String alias : aliases) {
+                        commandCooldowns.put(alias.toLowerCase(), cooldown);
+                    }
+                }
+            }
+            if (hidden) {
+                commandHidden.add(cmd);
+            }
             if (aliases != null && !aliases.isEmpty()) {
                 commandAliases.put(cmd, new ArrayList<>(aliases));
             }
