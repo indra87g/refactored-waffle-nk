@@ -1,27 +1,36 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
-import cn.nukkit.command.CommandSender;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
-import cn.nukkit.plugin.Plugin;
-import cn.nukkit.utils.Config;
-import cn.nukkit.network.protocol.TransferPacket;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.TransferPacket;
+import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.NukkitRunnable;
+import cn.nukkit.utils.Config;
+import cn.nukkit.utils.TextFormat;
+import com.indra87g.utils.MessageHandler;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ServersCommand extends BaseCommand {
 
+    private static ServersCommand instance;
     private final Plugin plugin;
     private final List<ServerEntry> servers = new ArrayList<>();
 
     public ServersCommand(Plugin plugin) {
         super("servers", "Select a server to join", "/servers", "waffle.servers");
         this.plugin = plugin;
+        instance = this;
         loadServers();
+    }
+
+    public static ServersCommand getInstance() {
+        return instance;
     }
 
     public void loadServers() {
@@ -47,11 +56,13 @@ public class ServersCommand extends BaseCommand {
     @Override
     protected boolean handleCommand(Player player, String[] args) {
         if (servers.isEmpty()) {
-            player.sendMessage("§cNo servers found in servers.yml!");
+            MessageHandler.sendMessage(player, "servers_not_found");
             return true;
         }
 
-        FormWindowSimple form = new FormWindowSimple("§6Server Selector", "Select your destination server:");
+        String title = TextFormat.colorize(MessageHandler.getMessage("servers_form_title", ""));
+        String content = TextFormat.colorize(MessageHandler.getMessage("servers_form_content", ""));
+        FormWindowSimple form = new FormWindowSimple(title, content);
         for (ServerEntry entry : servers) {
             form.addButton(new ElementButton(entry.getName()));
         }
@@ -76,14 +87,18 @@ public class ServersCommand extends BaseCommand {
                 }
 
                 if (!player.clone().floor().equals(startPos)) {
-                    player.sendTitle("§cCancelled!", "§7You moved.", 0, 40, 10);
-                    player.sendMessage("§eTransfer cancelled because you moved.");
+                    String title = TextFormat.colorize(MessageHandler.getMessage("servers_teleport_cancelled_title"));
+                    String subtitle = TextFormat.colorize(MessageHandler.getMessage("servers_teleport_cancelled_subtitle"));
+                    player.sendTitle(title, subtitle, 0, 40, 10);
+                    MessageHandler.sendMessage(player, "servers_teleport_cancelled");
                     this.cancel();
                     return;
                 }
 
                 if (count > 0) {
-                    player.sendTitle("§eConnecting...", "§c" + count + " §7(Do not move!)", 0, 20, 0);
+                    String title = TextFormat.colorize(MessageHandler.getMessage("servers_teleport_countdown_title"));
+                    String subtitle = TextFormat.colorize(MessageHandler.getMessage("servers_teleport_countdown_subtitle", "{count}", String.valueOf(count)));
+                    player.sendTitle(title, subtitle, 0, 20, 0);
                     count--;
                 } else {
                     TransferPacket pk = new TransferPacket();
@@ -91,8 +106,10 @@ public class ServersCommand extends BaseCommand {
                     pk.port = entry.getPort();
                     player.dataPacket(pk);
 
-                    player.sendMessage("§aConnecting to §e" + entry.getName() +
-                            " §7(" + entry.getIp() + ":" + entry.getPort() + ")");
+                    MessageHandler.sendMessage(player, "servers_connecting",
+                            "{server}", entry.getName(),
+                            "{ip}", entry.getIp(),
+                            "{port}", String.valueOf(entry.getPort()));
                     this.cancel();
                 }
             }

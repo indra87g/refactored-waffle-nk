@@ -7,19 +7,18 @@ import cn.nukkit.event.player.PlayerKickEvent;
 import com.indra87g.commands.RoamCommand;
 
 public class RoamListener implements Listener {
-    private final RoamCommand roamCommand;
 
-    public RoamListener(RoamCommand roamCommand) {
-        this.roamCommand = roamCommand;
+    public RoamListener() {
+        // Constructor is now empty
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        roamCommand.forceCancel(event.getPlayer());
+        RoamCommand.getInstance().forceCancel(event.getPlayer());
     }
 
     @EventHandler
     public void onKick(PlayerKickEvent event) {
-        roamCommand.forceCancel(event.getPlayer());
+        RoamCommand.getInstance().forceCancel(event.getPlayer());
     }
 }

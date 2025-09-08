@@ -3,6 +3,7 @@ package com.indra87g.commands;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.Player;
+import com.indra87g.utils.MessageHandler;
 
 public abstract class BaseCommand extends Command {
 
@@ -16,24 +17,26 @@ public abstract class BaseCommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String label, String[] args) {
         if (!this.testPermission(sender)) {
+            MessageHandler.sendMessage(sender, "permission_denied");
             return false;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cThis command only for player!");
+            MessageHandler.sendMessage(sender, "player_only_command");
             return false;
         }
 
         Player player = (Player) sender;
 
         if (!validateArgs(args, player)) {
+            // The validateArgs method is responsible for sending the usage message.
             return false;
         }
 
         try {
             return handleCommand(player, args);
         } catch (Exception e) {
-            player.sendMessage("§cError on running command.");
+            MessageHandler.sendMessage(sender, "generic_error");
             e.printStackTrace();
             return false;
         }

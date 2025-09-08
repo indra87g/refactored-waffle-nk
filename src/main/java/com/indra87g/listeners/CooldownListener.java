@@ -7,6 +7,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.network.protocol.AvailableCommandsPacket;
+import com.indra87g.utils.MessageHandler;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -49,7 +50,8 @@ public class CooldownListener implements Listener {
 
         if (elapsed < cooldown) {
             e.setCancelled(true);
-            player.sendMessage("§cPlease wait " + (cooldown - elapsed) + "s before using /" + command + " again.");
+            long timeRemaining = cooldown - elapsed;
+            MessageHandler.sendMessage(player, "cooldown_active", "{time}", String.valueOf(timeRemaining), "{command}", command);
         } else {
             lastUse.put(key, now);
         }

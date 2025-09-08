@@ -1,6 +1,7 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
+import com.indra87g.utils.MessageHandler;
 
 public class ClearChatCommand extends BaseCommand {
 
@@ -11,8 +12,8 @@ public class ClearChatCommand extends BaseCommand {
     @Override
     protected boolean validateArgs(String[] args, Player player) {
         if (args.length > 1) {
-            player.sendMessage("§cToo many arguments.");
-            player.sendMessage("§eUsage: " + this.getUsage());
+            MessageHandler.sendMessage(player, "clearchat_too_many_args");
+            MessageHandler.sendMessage(player, "invalid_usage", "{usage}", this.getUsage());
             return false;
         }
         return true;
@@ -26,11 +27,11 @@ public class ClearChatCommand extends BaseCommand {
             try {
                 amount = Integer.parseInt(args[0]);
                 if (amount < 100 || amount > 500) {
-                    player.sendMessage("§cAmount must be between 100 - 500.");
+                    MessageHandler.sendMessage(player, "clearchat_invalid_amount_range");
                     return false;
                 }
             } catch (NumberFormatException e) {
-                player.sendMessage("§cAmount must be integer.");
+                MessageHandler.sendMessage(player, "clearchat_invalid_amount_type");
                 return false;
             }
         }
@@ -39,7 +40,7 @@ public class ClearChatCommand extends BaseCommand {
             player.sendMessage(""); 
         }
 
-        player.sendMessage("§aChat cleared successfully! (" + amount + " lines).");
+        MessageHandler.sendMessage(player, "clearchat_success", "{amount}", String.valueOf(amount));
         return true;
     }
 }

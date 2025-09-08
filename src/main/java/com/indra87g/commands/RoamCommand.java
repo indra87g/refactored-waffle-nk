@@ -3,47 +3,55 @@ package com.indra87g.commands;
 import cn.nukkit.Player;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.plugin.Plugin;
+import com.indra87g.utils.MessageHandler;
 import me.onebone.economyapi.EconomyAPI;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 public class RoamCommand extends BaseCommand {
+    private static RoamCommand instance;
     private final Plugin plugin;
     private final HashMap<UUID, Integer> roamMinutes = new HashMap<>();
     private final HashMap<UUID, NukkitRunnable> roamTasks = new HashMap<>();
+    private final EconomyAPI economyAPI = EconomyAPI.getInstance();
 
     public RoamCommand(Plugin plugin) {
         super("roam", "Enter roaming mode (spectator)", "/roam [cancel|trial]", "waffle.roam");
         this.plugin = plugin;
+        instance = this;
+    }
+
+    public static RoamCommand getInstance() {
+        return instance;
     }
 
     @Override
     protected boolean handleCommand(Player player, String[] args) {
         if (args.length == 0) {
             if (roamTasks.containsKey(player.getUniqueId())) {
-                player.sendMessage("§cYou are entering roam mode! Type /roam cancel to exit.");
+                MessageHandler.sendMessage(player, "roam_already_roaming");
                 return true;
             }
 
             player.setGamemode(Player.SPECTATOR);
-            player.sendMessage("§aRoaming charges: 150 money/minute.");
+            MessageHandler.sendMessage(player, "roam_start");
 
             roamMinutes.put(player.getUniqueId(), 0);
 
             NukkitRunnable task = new NukkitRunnable() {
                 @Override
                 public void run() {
-                    double balance = EconomyAPI.getInstance().myMoney(player);
-                    if (balance < 150) {
-                        player.sendMessage("§cOut of money! Roaming cancelled.");
+                    if (economyAPI.myMoney(player) < 150) {
+                        MessageHandler.sendMessage(player, "roam_no_money");
                         cancelRoam(player);
                         return;
                     }
 
-                    EconomyAPI.getInstance().reduceMoney(player, 150);
-                    roamMinutes.put(player.getUniqueId(), roamMinutes.get(player.getUniqueId()) + 1);
-                    player.sendMessage("§e150 money deducted for roaming. Total minutes: " + roamMinutes.get(player.getUniqueId()));
+                    economyAPI.reduceMoney(player, 150);
+                    int currentMinutes = roamMinutes.getOrDefault(player.getUniqueId(), 0) + 1;
+                    roamMinutes.put(player.getUniqueId(), currentMinutes);
+                    MessageHandler.sendMessage(player, "roam_fee_deducted", "{minutes}", String.valueOf(currentMinutes));
                 }
             };
             task.runTaskTimer(plugin, 20 * 60, 20 * 60);
@@ -53,28 +61,28 @@ public class RoamCommand extends BaseCommand {
 
         if (args[0].equalsIgnoreCase("cancel")) {
             if (!roamTasks.containsKey(player.getUniqueId())) {
-                player.sendMessage("§cYou are not roaming!");
+                MessageHandler.sendMessage(player, "roam_not_roaming");
                 return true;
             }
             int minutes = roamMinutes.getOrDefault(player.getUniqueId(), 0);
             cancelRoam(player);
-            player.sendMessage("§aRoam ended! Total money spend: " + (minutes * 150));
+            MessageHandler.sendMessage(player, "roam_ended", "{amount}", String.valueOf(minutes * 150));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("trial")) {
             player.setGamemode(Player.SPECTATOR);
-            player.sendMessage("§aTrial mode started! You can use spectator mode for 1 minute.");
+            MessageHandler.sendMessage(player, "roam_trial_start");
             plugin.getServer().getScheduler().scheduleDelayedTask(plugin, () -> {
-                if (player.isOnline() && player.getGamemode() == Player.CREATIVE) {
+                if (player.isOnline() && player.getGamemode() == Player.SPECTATOR) {
                     player.setGamemode(Player.SURVIVAL);
-                    player.sendMessage("§eTrial mode ended!");
+                    MessageHandler.sendMessage(player, "roam_trial_ended");
                 }
             }, 20 * 60);
             return true;
         }
 
-        player.sendMessage("§cUsage: /roam [cancel|trial]");
+        MessageHandler.sendMessage(player, "roam_usage");
         return true;
     }
 

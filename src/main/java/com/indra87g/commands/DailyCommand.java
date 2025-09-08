@@ -1,8 +1,8 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
-import cn.nukkit.utils.TextFormat;
 import com.indra87g.rewards.DailyRewardManager;
+import com.indra87g.utils.MessageHandler;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +18,7 @@ public class DailyCommand extends BaseCommand {
     @Override
     protected boolean handleCommand(Player player, String[] args) {
         if (args.length == 0) {
-            player.sendMessage(TextFormat.YELLOW + "Usage: /daily <claim|status>");
+            MessageHandler.sendMessage(player, "daily_usage");
             return true;
         }
 
@@ -33,7 +33,7 @@ public class DailyCommand extends BaseCommand {
                 break;
 
             default:
-                player.sendMessage(TextFormat.YELLOW + "Usage: /daily <claim|status>");
+                MessageHandler.sendMessage(player, "daily_usage");
                 break;
         }
         return true;
@@ -45,14 +45,14 @@ public class DailyCommand extends BaseCommand {
         String today = now.format(DateTimeFormatter.ofPattern("EEEE"));
         String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        player.sendMessage(TextFormat.GOLD + "===== Daily Reward Status =====");
-        player.sendMessage(TextFormat.GREEN + "Today: " + TextFormat.WHITE + today + " (" + date + ")");
-        player.sendMessage(TextFormat.GREEN + "Current Streak: " + TextFormat.WHITE + streak + " days");
+        MessageHandler.sendDirectMessage(player, MessageHandler.getMessage("daily_status_header"));
+        MessageHandler.sendMessage(player, "daily_status_today", "{day}", today, "{date}", date);
+        MessageHandler.sendMessage(player, "daily_status_streak", "{streak}", String.valueOf(streak));
 
         if (rewardManager.hasSpecialReward(date)) {
-            player.sendMessage(TextFormat.AQUA + "Special reward is available today!");
+            MessageHandler.sendMessage(player, "daily_status_special_reward");
         } else {
-            player.sendMessage(TextFormat.GRAY + "No special reward today.");
+            MessageHandler.sendMessage(player, "daily_status_no_special_reward");
         }
     }
 }

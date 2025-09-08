@@ -9,10 +9,9 @@ import cn.nukkit.Player;
 import com.indra87g.commands.ServersCommand;
 
 public class ServersListener implements Listener {
-    private final ServersCommand serversCommand;
 
-    public ServersListener(ServersCommand serversCommand) {
-        this.serversCommand = serversCommand;
+    public ServersListener() {
+        // Constructor is now empty
     }
 
     @EventHandler
@@ -26,6 +25,6 @@ public class ServersListener implements Listener {
         FormResponseSimple response = (FormResponseSimple) e.getResponse();
         int buttonIndex = response.getClickedButtonId();
 
-        serversCommand.handleResponse(player, buttonIndex);
+        ServersCommand.getInstance().handleResponse(player, buttonIndex);
     }
 }

@@ -1,15 +1,17 @@
-package com.indra87g.daily;
+package com.indra87g.rewards;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Config;
+import com.indra87g.utils.MessageHandler;
 import me.onebone.economyapi.EconomyAPI;
 
 import java.io.File;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -33,20 +35,25 @@ public class DailyRewardManager {
     public boolean claimReward(Player player) {
         String name = player.getName().toLowerCase();
 
-        long lastClaim = dataConfig.getLong(name + ".last_claim", 0);
+        long lastClaimSeconds = dataConfig.getLong(name + ".last_claim", 0);
         int streak = dataConfig.getInt(name + ".streak", 0);
 
         ZonedDateTime now = ZonedDateTime.now(zoneId);
         ZonedDateTime lastReset = getResetTime(now);
         ZonedDateTime prevReset = lastReset.minusDays(1);
 
-        boolean alreadyClaimed = lastClaim >= lastReset.toEpochSecond();
+        boolean alreadyClaimed = lastClaimSeconds >= lastReset.toEpochSecond();
         if (alreadyClaimed) {
-            player.sendMessage(mainConfig.getString("messages.already_claimed"));
+            ZonedDateTime nextReset = lastReset.plusDays(1);
+            long secondsRemaining = now.until(nextReset, ChronoUnit.SECONDS);
+            long hours = secondsRemaining / 3600;
+            long minutes = (secondsRemaining % 3600) / 60;
+            String timeRemaining = String.format("%dh %dm", hours, minutes);
+            MessageHandler.sendMessage(player, "daily_reward_already_claimed", "{time}", timeRemaining);
             return false;
         }
 
-        if (lastClaim >= prevReset.toEpochSecond() && lastClaim < lastReset.toEpochSecond()) {
+        if (lastClaimSeconds >= prevReset.toEpochSecond() && lastClaimSeconds < lastReset.toEpochSecond()) {
             streak++;
         } else {
             streak = 1;
@@ -57,12 +64,10 @@ public class DailyRewardManager {
         dataConfig.save();
 
         boolean rewardGiven = false;
-
-        String today = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        if (mainConfig.exists("special_rewards." + today)) {
-            giveRewards(player, mainConfig.getMapList("special_rewards." + today));
-            player.sendMessage(mainConfig.getString("messages.special_reward")
-                    .replace("%date%", today));
+        String todayDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (mainConfig.exists("special_rewards." + todayDate)) {
+            giveRewards(player, mainConfig.getMapList("special_rewards." + todayDate));
+            MessageHandler.sendMessage(player, "daily_reward_special", "{date}", todayDate);
             rewardGiven = true;
         }
 
@@ -70,21 +75,19 @@ public class DailyRewardManager {
         String rewardKey = "rewards.reward" + dayOfWeek;
         if (mainConfig.isList(rewardKey)) {
             giveRewards(player, mainConfig.getMapList(rewardKey));
-            player.sendMessage(mainConfig.getString("messages.success")
-                    .replace("%day%", now.getDayOfWeek().toString()));
+            String dayName = now.getDayOfWeek().toString();
+            MessageHandler.sendMessage(player, "daily_reward_success", "{day}", dayName);
             rewardGiven = true;
         }
 
-        // Streak reward
         if (mainConfig.exists("streak_rewards." + streak)) {
             giveRewards(player, mainConfig.getMapList("streak_rewards." + streak));
-            player.sendMessage(mainConfig.getString("messages.streak_bonus")
-                    .replace("%streak%", String.valueOf(streak)));
+            MessageHandler.sendMessage(player, "daily_reward_streak_bonus", "{streak}", String.valueOf(streak));
             rewardGiven = true;
         }
 
         if (!rewardGiven) {
-            player.sendMessage(mainConfig.getString("messages.not_available"));
+            MessageHandler.sendMessage(player, "daily_reward_not_available");
         }
 
         return rewardGiven;
