@@ -1,10 +1,10 @@
 package com.indra87g.commands;
 
+import cn.nukkit.Player;
 import cn.nukkit.block.Block;
-import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.Player;
+import com.indra87g.utils.MessageHandler;
 
 public class SetBlockCommand extends BaseCommand {
 
@@ -20,28 +20,26 @@ public class SetBlockCommand extends BaseCommand {
     @Override
     protected boolean validateArgs(String[] args, Player player) {
         if (args.length != 4) {
-            player.sendMessage("§cError: Wrong number of arguments.");
-            player.sendMessage("§eUsage: " + this.getUsage());
+            MessageHandler.sendMessage(player, "setblock_invalid_arg_count");
+            MessageHandler.sendMessage(player, "invalid_usage", "{usage}", this.getUsage());
             return false;
         }
 
         try {
             Integer.parseInt(args[0]);
-            Integer.parseInt(args[1]);
+            int y = Integer.parseInt(args[1]);
             Integer.parseInt(args[2]);
             Integer.parseInt(args[3]);
+
+            if (y < 0 || y > 255) {
+                MessageHandler.sendMessage(player, "setblock_invalid_y");
+                return false;
+            }
         } catch (NumberFormatException e) {
-            player.sendMessage("§cError: All arguments must be valid numbers.");
-            player.sendMessage("§eUsage: " + this.getUsage());
+            MessageHandler.sendMessage(player, "setblock_invalid_arg_type");
+            MessageHandler.sendMessage(player, "invalid_usage", "{usage}", this.getUsage());
             return false;
         }
-
-        int y = Integer.parseInt(args[1]);
-        if (y < 0 || y > 255) {
-            player.sendMessage("§cError: Y coordinate must be between 0 and 255.");
-            return false;
-        }
-
         return true;
     }
 
@@ -56,26 +54,27 @@ public class SetBlockCommand extends BaseCommand {
         Vector3 position = new Vector3(x, y, z);
         Block block = Block.get(blockId);
 
-        if (block.getId() == 0 && blockId != 0) { // 0 = Air
-            player.sendMessage("§cError: Invalid block ID: " + blockId);
+        if (block.getId() == Block.AIR && blockId != 0) {
+            MessageHandler.sendMessage(player, "setblock_invalid_block_id", "{id}", String.valueOf(blockId));
             return false;
         }
 
-        Block oldBlock = level.getBlock(position);
-        boolean success = level.setBlock(position, block);
+        boolean success = level.setBlock(position, block, true, true);
 
         if (success) {
-            player.sendMessage("§aSuccess! Placed §f" + block.getName() +
-                "§a at coordinates §f(" + x + ", " + y + ", " + z + ")");
-
+            MessageHandler.sendMessage(player, "setblock_success",
+                "{block}", block.getName(),
+                "{x}", String.valueOf(x),
+                "{y}", String.valueOf(y),
+                "{z}", String.valueOf(z)
+            );
             player.getServer().getLogger().info(
                 player.getName() + " placed " + block.getName() +
                 " at (" + x + ", " + y + ", " + z + ") in world " + level.getName()
             );
-            return true;
         } else {
-            player.sendMessage("§cError: Failed to place block. The area might be protected.");
-            return false;
+            MessageHandler.sendMessage(player, "setblock_failure");
         }
+        return true;
     }
 }

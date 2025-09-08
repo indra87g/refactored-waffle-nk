@@ -1,6 +1,7 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
+import com.indra87g.utils.MessageHandler;
 
 public class CalcCommand extends BaseCommand {
 
@@ -11,7 +12,7 @@ public class CalcCommand extends BaseCommand {
     @Override
     protected boolean validateArgs(String[] args, Player player) {
         if (args.length != 3) {
-            player.sendMessage("§cUsage: /calc <num1> <operator> <num2>");
+            MessageHandler.sendMessage(player, "calc_usage");
             return false;
         }
         return true;
@@ -27,7 +28,7 @@ public class CalcCommand extends BaseCommand {
             num1 = Double.parseDouble(args[0]);
             num2 = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {
-            player.sendMessage("§cInvalid number!");
+            MessageHandler.sendMessage(player, "calc_invalid_number");
             return true;
         }
 
@@ -44,17 +45,17 @@ public class CalcCommand extends BaseCommand {
                 break;
             case "/":
                 if (num2 == 0) {
-                    player.sendMessage("§cCannot divide by zero!");
+                    MessageHandler.sendMessage(player, "calc_divide_by_zero");
                     return true;
                 }
                 result = num1 / num2;
                 break;
             default:
-                player.sendMessage("§cUnknown operator! Please use +, -, *, or /");
+                MessageHandler.sendMessage(player, "calc_invalid_operator");
                 return true;
         }
 
-        player.sendMessage("§aResult: §e" + result);
+        MessageHandler.sendMessage(player, "calc_result", "{result}", String.valueOf(result));
         return true;
     }
 }
