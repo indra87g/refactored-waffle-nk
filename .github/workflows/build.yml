@@ -1,9 +1,9 @@
 name: Build Nukkit Plugin
 
-on:
-  push:
-    branches:
-      - main
+on: 
+  pull_request: 
+    types: 
+      - closed
   workflow_dispatch:
 
 jobs:
@@ -28,11 +28,11 @@ jobs:
         restore-keys: |
           maven-${{ runner.os}}
 
-    - name: Build plugin dengan Maven
+    - name: Build Plugin w/ Maven
       run: mvn clean package
 
     - name: Upload Plugin JAR
       uses: actions/upload-artifact@v4
       with:
-        name: NukkitPlugin
+        name: RefactoredWaffleNK
         path: target/*.jar
