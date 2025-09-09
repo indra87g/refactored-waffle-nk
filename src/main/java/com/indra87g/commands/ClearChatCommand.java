@@ -36,9 +36,11 @@ public class ClearChatCommand extends BaseCommand {
             }
         }
 
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < amount; i++) {
-            player.sendMessage(""); 
+            sb.append("\n");
         }
+        player.sendMessage(sb.toString());
 
         MessageHandler.sendMessage(player, "clearchat_success", "{amount}", String.valueOf(amount));
         return true;
