@@ -1,0 +1,12 @@
+afk_timeout: 300
+schedules:
+  - id: "main"
+    interval: 300
+    reward: 20
+    message: "You gain money every 5 minutes"
+
+
+  - id: "bonus"
+    interval: 900
+    reward: 100
+    message: "Bonus!"

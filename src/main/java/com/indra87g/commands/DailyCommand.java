@@ -1,11 +1,11 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
+import cn.nukkit.utils.TextFormat;
 import com.indra87g.rewards.DailyRewardManager;
-import com.indra87g.utils.MessageHandler;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class DailyCommand extends BaseCommand {
     private final DailyRewardManager rewardManager;
@@ -18,7 +18,7 @@ public class DailyCommand extends BaseCommand {
     @Override
     protected boolean handleCommand(Player player, String[] args) {
         if (args.length == 0) {
-            MessageHandler.sendMessage(player, "daily_usage");
+            sendUsage(player);
             return true;
         }
 
@@ -33,26 +33,37 @@ public class DailyCommand extends BaseCommand {
                 break;
 
             default:
-                MessageHandler.sendMessage(player, "daily_usage");
+                sendUsage(player);
                 break;
         }
         return true;
     }
 
+    private void sendUsage(Player player) {
+        player.sendMessage(TextFormat.colorize("&6Usage: /daily <claim|status>"));
+    }
+
     private void sendStatus(Player player) {
         int streak = rewardManager.getStreak(player);
-        ZonedDateTime now = rewardManager.getNow();
-        String today = now.format(DateTimeFormatter.ofPattern("EEEE"));
-        String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        long lastClaimSeconds = rewardManager.getLastClaimTime(player);
+        ZonedDateTime now = ZonedDateTime.now(); // Use the same timezone logic as manager if needed, but for status it's minor.
+        ZonedDateTime lastReset = rewardManager.getLastReset(now);
 
-        MessageHandler.sendDirectMessage(player, MessageHandler.getMessage("daily_status_header"));
-        MessageHandler.sendMessage(player, "daily_status_today", "{day}", today, "{date}", date);
-        MessageHandler.sendMessage(player, "daily_status_streak", "{streak}", String.valueOf(streak));
-
-        if (rewardManager.hasSpecialReward(date)) {
-            MessageHandler.sendMessage(player, "daily_status_special_reward");
+        String claimStatus;
+        if (lastClaimSeconds >= lastReset.toEpochSecond()) {
+            ZonedDateTime nextReset = rewardManager.getNextResetTime();
+            long secondsRemaining = now.until(nextReset, ChronoUnit.SECONDS);
+            long hours = secondsRemaining / 3600;
+            long minutes = (secondsRemaining % 3600) / 60;
+            claimStatus = TextFormat.colorize(String.format("&cClaimed. Next reward in %dh %dm.", hours, minutes));
         } else {
-            MessageHandler.sendMessage(player, "daily_status_no_special_reward");
+            claimStatus = TextFormat.colorize("&aAvailable! Use /daily claim.");
         }
+
+        player.sendMessage(TextFormat.colorize("&l&eDaily Reward Status&r"));
+        player.sendMessage(TextFormat.colorize("&7--------------------"));
+        player.sendMessage(TextFormat.colorize("&eCurrent Streak: &f" + streak + " day(s)"));
+        player.sendMessage(TextFormat.colorize("&eStatus: " + claimStatus));
+        player.sendMessage(TextFormat.colorize("&7--------------------"));
     }
 }
