@@ -17,9 +17,6 @@ public class MessageHandler {
 
     public static void loadMessages(Main plugin) {
         File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
-        }
         messageConfig = new Config(messagesFile, Config.YAML);
         prefix = TextFormat.colorize(messageConfig.getString("prefix", "&7[&eWaffle&7] &r"));
 

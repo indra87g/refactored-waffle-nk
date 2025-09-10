@@ -44,18 +44,21 @@ public class Main extends PluginBase {
     }
 
     private void loadConfigs() {
-        // Load messages first so it can be used by other components.
-        MessageHandler.loadMessages(this);
-
+        // Save all default configurations
+        this.saveResource("messages.yml", false);
         this.saveResource("commands.yml", false);
         this.saveResource("time_rewards.yml", false);
         this.saveResource("daily_rewards.yml", false);
-        this.saveResource("math_game.yml", false); // Save the new config
+        this.saveResource("math_game.yml", false);
+        this.saveResource("servers.yml", false);
 
+        // Load managers and other configurations
+        MessageHandler.loadMessages(this);
         File dailyConfig = new File(getDataFolder(), "daily_rewards.yml");
         this.dailyRewardManager = new DailyRewardManager(dailyConfig, getDataFolder());
         this.mathGameManager = new MathGameManager(this);
 
+        // Load command specific configurations
         File configFile = new File(getDataFolder(), "commands.yml");
         Config config = new Config(configFile, Config.YAML);
 

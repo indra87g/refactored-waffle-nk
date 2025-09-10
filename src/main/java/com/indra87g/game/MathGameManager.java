@@ -21,7 +21,6 @@ public class MathGameManager {
 
     public MathGameManager(Main plugin) {
         this.plugin = plugin;
-        plugin.saveResource("math_game.yml", false);
         this.config = new Config(plugin.getDataFolder() + "/math_game.yml", Config.YAML);
     }
 
