@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>indra87g.refactoredwaffle</groupId>
     <artifactId>RefactoredWaffleNK</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <build>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
         <plugins>
