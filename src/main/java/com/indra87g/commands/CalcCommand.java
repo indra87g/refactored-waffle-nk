@@ -1,25 +1,36 @@
 package com.indra87g.commands;
 
 import cn.nukkit.Player;
+import com.indra87g.game.MathGameManager;
 import com.indra87g.utils.MessageHandler;
 
 public class CalcCommand extends BaseCommand {
 
-    public CalcCommand() {
-        super("calc", "Do a mathematical calculation", "/calc <num1> <operator> <num2>", "waffle.calc");
-    }
+    private final MathGameManager gameManager;
 
-    @Override
-    protected boolean validateArgs(String[] args, Player player) {
-        if (args.length != 3) {
-            MessageHandler.sendMessage(player, "calc_usage");
-            return false;
-        }
-        return true;
+    public CalcCommand(MathGameManager gameManager) {
+        super("calc", "Do a mathematical calculation or play a math game", "/calc <num1> <op> <num2> | /calc play", "waffle.calc");
+        this.gameManager = gameManager;
     }
 
     @Override
     protected boolean handleCommand(Player player, String[] args) {
+        if (args.length == 0) {
+            MessageHandler.sendMessage(player, "calc_usage"); // Assumes a generic usage message exists
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("play")) {
+            gameManager.startGame(player);
+            return true;
+        }
+
+        if (args.length != 3) {
+            MessageHandler.sendMessage(player, "calc_usage");
+            return true;
+        }
+
+        // Standard calculator logic
         double num1, num2;
         String operator = args[1];
         double result;

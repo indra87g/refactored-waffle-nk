@@ -1,0 +1,53 @@
+# --- Math Game Settings ---
+game:
+  # Number of questions to ask the player in a single game.
+  questions_total: 5
+  # Settings for addition questions
+  addition:
+    min: 1
+    max: 100
+  # Settings for subtraction questions
+  subtraction:
+    min: 1
+    max: 100
+  # Settings for multiplication questions
+  multiplication:
+    min: 2
+    max: 12
+  # Settings for division questions.
+  # The first number will be a multiple of the second to ensure whole number answers.
+  division:
+    min_divisor: 2
+    max_divisor: 10
+    min_multiplier: 2
+    max_multiplier: 10
+
+# --- Rewards ---
+# The reward is calculated per correct answer.
+rewards:
+  # Base reward for any correct answer.
+  base_correct: 50
+  # Bonus reward for specific operations. This is added to the base_correct reward.
+  bonus:
+    addition: 10
+    subtraction: 15
+    multiplication: 25
+    division: 30
+
+# --- Messages ---
+# All messages related to the math game. These will be sent without the global prefix.
+messages:
+  game_start: |-
+    &aMath game started!
+    &eAnswer the following {questions_total} questions.
+    &cChat and commands are disabled until the game is over.
+  question: "&eQuestion {current_question}/{questions_total}: &fWhat is {num1} {operator} {num2}?"
+  correct_answer: "&aCorrect! Your current score: &6{score}"
+  incorrect_answer: "&cIncorrect! The correct answer was &a{correct_answer}&c. Your current score: &6{score}"
+  game_over: |-
+    &aMath game over!
+    &eYou answered {correct_total} out of {questions_total} questions correctly.
+    &aYou have been awarded &6${final_reward}&a!
+  already_in_game: "&cYou are already in a math game."
+  invalid_answer: "&cThat's not a valid number. Please try again."
+  game_prefix: "&7[&bMathGame&7] &r"

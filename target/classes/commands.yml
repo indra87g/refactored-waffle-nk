@@ -1,0 +1,10 @@
+casino:
+    cooldown: 20
+    hidden: false
+    aliases:
+        - bet
+
+warp:
+    cooldown: 0
+    hidden: true
+    aliases: []

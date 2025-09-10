@@ -5,21 +5,14 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandMap;
 import cn.nukkit.utils.Config;
 
-import com.indra87g.commands.SetBlockCommand;
-import com.indra87g.commands.ClearChatCommand;
-import com.indra87g.commands.CasinoCommand;
-import com.indra87g.commands.CalcCommand;
-import com.indra87g.commands.DailyCommand;
-import com.indra87g.commands.RoamCommand;
-import com.indra87g.commands.ServersCommand;
-import com.indra87g.commands.ReloadCommand;
-
-import com.indra87g.listeners.RoamListener;
+import com.indra87g.commands.*;
+import com.indra87g.game.MathGameListener;
+import com.indra87g.game.MathGameManager;
 import com.indra87g.listeners.CooldownListener;
+import com.indra87g.listeners.RoamListener;
 import com.indra87g.listeners.ServersListener;
-
-import com.indra87g.rewards.TimeRewardManager;
 import com.indra87g.rewards.DailyRewardManager;
+import com.indra87g.rewards.TimeRewardManager;
 import com.indra87g.utils.MessageHandler;
 
 import java.io.File;
@@ -30,9 +23,9 @@ public class Main extends PluginBase {
     private Set<String> commandHidden = new HashSet<>();
     private Map<String, List<String>> commandAliases = new HashMap<>();
 
-    private TimeRewardManager timeRewardManager;
     private DailyRewardManager dailyRewardManager;
-    
+    private MathGameManager mathGameManager;
+
     @Override
     public void onEnable() {
         getLogger().info("§aPlugin activated!");
@@ -46,25 +39,27 @@ public class Main extends PluginBase {
         registerCommands();
         registerListeners();
 
-        this.timeRewardManager = new TimeRewardManager(this);
+        new TimeRewardManager(this); // This seems to be self-contained
         getLogger().info("All managers enabled!");
     }
 
     private void loadConfigs() {
-        // Load messages first so it can be used by other components.
-        MessageHandler.loadMessages(this);
-
+        // Save all default configurations
+        this.saveResource("messages.yml", false);
         this.saveResource("commands.yml", false);
         this.saveResource("time_rewards.yml", false);
         this.saveResource("daily_rewards.yml", false);
+        this.saveResource("math_game.yml", false);
+        this.saveResource("servers.yml", false);
 
+        // Load managers and other configurations
+        MessageHandler.loadMessages(this);
         File dailyConfig = new File(getDataFolder(), "daily_rewards.yml");
         this.dailyRewardManager = new DailyRewardManager(dailyConfig, getDataFolder());
+        this.mathGameManager = new MathGameManager(this);
 
+        // Load command specific configurations
         File configFile = new File(getDataFolder(), "commands.yml");
-        if (!configFile.exists()) {
-            this.saveResource("commands.yml", false);
-        }
         Config config = new Config(configFile, Config.YAML);
 
         for (String key : config.getKeys(false)) {
@@ -101,7 +96,7 @@ public class Main extends PluginBase {
             new SetBlockCommand(),
             new ClearChatCommand(),
             new CasinoCommand(),
-            new CalcCommand(),
+            new CalcCommand(mathGameManager), // Pass manager to command
             new DailyCommand(dailyRewardManager),
             roamCmd,
             serversCmd,
@@ -129,9 +124,9 @@ public class Main extends PluginBase {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new CooldownListener(this, commandCooldowns, commandHidden), this);
-        // The Roam and Servers commands now manage their own listeners, so we don't need to get them from the command instance.
         getServer().getPluginManager().registerEvents(new RoamListener(), this);
         getServer().getPluginManager().registerEvents(new ServersListener(), this);
+        getServer().getPluginManager().registerEvents(new MathGameListener(mathGameManager), this); // Register new listener
         getLogger().info("All listeners registered!");
     }
 

@@ -1,0 +1,100 @@
+# This file contains all the messages for the RefactoredWaffleNK plugin.
+# You can use color codes with '&'.
+# Placeholders like {player} or {amount} will be replaced by the plugin.
+
+prefix: "&7[&eWaffle&7] &r"
+
+# Generic Messages
+player_only_command: "&cThis command can only be used by a player."
+permission_denied: "&cYou do not have permission to use this command."
+generic_error: "&cAn error occurred while running the command."
+invalid_usage: "&eInvalid usage. Use: {usage}"
+
+# Economy Messages
+not_enough_money: "&cYou do not have enough money."
+invalid_bet_amount: "&cThe bet amount is invalid."
+
+# Casino Command
+casino_usage: "&eUsage: /casino <coinflip|slot|dice>"
+casino_game_not_found: "&cGame not found! Use: coinflip, slot, dice."
+coinflip_usage: "&eUsage: /casino coinflip <heads|tails> <amount>"
+coinflip_invalid_choice: "&cYour choice must be 'heads' or 'tails'."
+coinflip_win: "&aThe coin landed on {result}! You won {amount}!"
+coinflip_lose: "&cThe coin landed on {result}. You lost {amount}."
+slot_usage: "&eUsage: /casino slot <amount>"
+slot_result: "&e[ {s1} | {s2} | {s3} ]"
+slot_win_triple: "&aTriple! You won {amount}!"
+slot_win_double: "&aTwo of a kind! You won {amount}!"
+slot_lose: "&cNothing matched. You lost {amount}."
+dice_usage: "&eUsage: /casino dice <1-6> <amount>"
+dice_invalid_guess: "&cYour guess must be between 1 and 6."
+dice_result: "&eThe dice rolled a {roll}."
+dice_win: "&aCorrect guess! You won {amount}!"
+dice_lose: "&cWrong guess. You lost {amount}."
+
+# Roam Command
+roam_already_roaming: "&cYou are already in roam mode! Type /roam cancel to exit."
+roam_start: "&aRoaming charges: 150 money/minute."
+roam_no_money: "&cOut of money! Roaming has been cancelled."
+roam_fee_deducted: "&e150 money was deducted for roaming. Total minutes: {minutes}"
+roam_not_roaming: "&cYou are not currently in roam mode."
+roam_ended: "&aRoaming ended! Total money spent: {amount}"
+roam_trial_start: "&aTrial mode started! You can use spectator mode for 1 minute."
+roam_trial_ended: "&eTrial mode has ended!"
+roam_usage: "&cUsage: /roam [cancel|trial]"
+
+# Servers Command
+servers_form_title: "&6Server Selector"
+servers_form_content: "Select your destination server:"
+servers_not_found: "&cNo servers were found in servers.yml!"
+servers_teleport_cancelled: "&eTeleport cancelled because you moved."
+servers_teleport_cancelled_title: "&cCancelled!"
+servers_teleport_cancelled_subtitle: "&7You moved."
+servers_teleport_countdown: "&eTeleporting in &c{count}&e... (Do not move!)"
+servers_teleport_countdown_title: "&eConnecting..."
+servers_teleport_countdown_subtitle: "&c{count} &7(Do not move!)"
+servers_connecting: "&aConnecting to &e{server}&7 ({ip}:{port})"
+
+# ClearChat Command
+chat_cleared: "&aThe chat has been cleared by {player}."
+clearchat_too_many_args: "&cToo many arguments."
+clearchat_invalid_amount_range: "&cAmount must be between 100 and 500."
+clearchat_invalid_amount_type: "&cAmount must be an integer."
+clearchat_success: "&aChat cleared successfully! ({amount} lines)."
+
+# Daily Command
+daily_usage: "&eUsage: /daily <claim|status>"
+daily_reward_already_claimed: "&cYou have already claimed your daily reward. Come back in {time}."
+daily_reward_special: "&aYou have received a special reward for today ({date})!"
+daily_reward_success: "&aYou have claimed your daily reward for {day}!"
+daily_reward_streak_bonus: "&aYou have received a streak bonus for {streak} days!"
+daily_reward_not_available: "&cNo reward is available for today."
+daily_status_header: "&6===== Daily Reward Status ====="
+daily_status_today: "&aToday: &f{day} ({date})"
+daily_status_streak: "&aCurrent Streak: &f{streak} days"
+daily_status_special_reward: "&bSpecial reward is available today!"
+daily_status_no_special_reward: "&7No special reward today."
+
+# Reload Command
+reload_usage: "&cUsage: /reload <pluginName>"
+reload_not_found: "&cPlugin not found: {plugin}"
+reload_success: "&aPlugin {plugin} reloaded!"
+reload_error: "&cError reloading plugin: {plugin}"
+
+# SetBlock Command
+setblock_invalid_arg_count: "&cError: Incorrect number of arguments."
+setblock_invalid_arg_type: "&cError: All coordinates and the block ID must be numbers."
+setblock_invalid_y: "&cError: The Y coordinate must be between 0 and 255."
+setblock_invalid_block_id: "&cError: Invalid block ID: {id}"
+setblock_success: "&aSuccess! Placed &f{block}&a at coordinates &f({x}, {y}, {z})"
+setblock_failure: "&cError: Failed to place the block. The area may be protected."
+
+# Calc Command
+calc_usage: "&cUsage: /calc <num1> <operator> <num2>"
+calc_invalid_number: "&cInvalid number provided."
+calc_divide_by_zero: "&cError: Cannot divide by zero."
+calc_invalid_operator: "&cUnknown operator! Please use +, -, *, or /"
+calc_result: "&aResult: &e{result}"
+
+# Cooldown Listener
+cooldown_active: "&cPlease wait {time}s before using /{command} again."
