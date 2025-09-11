@@ -90,7 +90,7 @@ setblock_success: "&aSuccess! Placed &f{block}&a at coordinates &f({x}, {y}, {z}
 setblock_failure: "&cError: Failed to place the block. The area may be protected."
 
 # Calc Command
-calc_usage: "&cUsage: /calc <num1> <operator> <num2>"
+calc_usage: "&cUsage: /calc play | <num1> <operator> <num2>"
 calc_invalid_number: "&cInvalid number provided."
 calc_divide_by_zero: "&cError: Cannot divide by zero."
 calc_invalid_operator: "&cUnknown operator! Please use +, -, *, or /"
