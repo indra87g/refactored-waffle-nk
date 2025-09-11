@@ -150,8 +150,8 @@ public class MathGameManager {
     }
 
     private int randInt(String minKey, String maxKey) {
-        int min = config.getSection("game").getInt(minKey);
-        int max = config.getSection("game").getInt(maxKey);
+        int min = config.getInt("game." + minKey);
+        int max = config.getInt("game." + maxKey);
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
