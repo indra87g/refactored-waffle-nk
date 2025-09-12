@@ -2,6 +2,7 @@ package com.indra87g.game;
 
 import cn.nukkit.Player;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
 import com.indra87g.Main;
 import me.onebone.economyapi.EconomyAPI;
@@ -151,7 +152,7 @@ public class MathGameManager {
     }
 
     private int randInt(String section, String minKey, String maxKey) {
-        Config sectionConfig = config.getSection("game." + section);
+        ConfigSection sectionConfig = config.getSection("game." + section);
         int min = sectionConfig.getInt(minKey);
         int max = sectionConfig.getInt(maxKey);
         if (min > max) { // Sanity check
@@ -168,7 +169,7 @@ public class MathGameManager {
     }
 
     private String getMessage(String key, String... replacements) {
-        Config messagesConfig = config.getSection("messages");
+        ConfigSection messagesConfig = config.getSection("messages");
         String message = messagesConfig.getString(key, "&cMessage not found: " + key);
         message = TextFormat.colorize(messagesConfig.getString("game_prefix", "") + message);
         if (replacements != null && replacements.length % 2 == 0) {
