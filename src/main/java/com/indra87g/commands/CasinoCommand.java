@@ -8,7 +8,6 @@ import java.util.Random;
 public class CasinoCommand extends BaseCommand {
 
     private final Random random = new Random();
-    private final EconomyAPI economyAPI = EconomyAPI.getInstance();
 
     public CasinoCommand() {
         super("casino", "Play casino game", "/casino <coinflip|slot|dice> ...", "waffle.casino");
@@ -53,7 +52,7 @@ public class CasinoCommand extends BaseCommand {
             return -1;
         }
 
-        if (economyAPI.myMoney(player) < amount) {
+        if (EconomyAPI.getInstance().myMoney(player) < amount) {
             MessageHandler.sendMessage(player, "not_enough_money");
             return -1;
         }
@@ -77,12 +76,12 @@ public class CasinoCommand extends BaseCommand {
             return false;
         }
 
-        economyAPI.reduceMoney(player, amount);
+        EconomyAPI.getInstance().reduceMoney(player, amount);
 
         String result = random.nextBoolean() ? "heads" : "tails";
         if (choice.equals(result)) {
             double prize = amount * 2;
-            economyAPI.addMoney(player, prize);
+            EconomyAPI.getInstance().addMoney(player, prize);
             MessageHandler.sendMessage(player, "coinflip_win", "{result}", result, "{amount}", String.valueOf(prize));
         } else {
             MessageHandler.sendMessage(player, "coinflip_lose", "{result}", result, "{amount}", String.valueOf(amount));
@@ -101,7 +100,7 @@ public class CasinoCommand extends BaseCommand {
             return false;
         }
 
-        economyAPI.reduceMoney(player, amount);
+        EconomyAPI.getInstance().reduceMoney(player, amount);
 
         String[] symbols = {"○", "□", "♡", "◇"};
         String s1 = symbols[random.nextInt(symbols.length)];
@@ -112,11 +111,11 @@ public class CasinoCommand extends BaseCommand {
 
         if (s1.equals(s2) && s2.equals(s3)) {
             double prize = amount * 4;
-            economyAPI.addMoney(player, prize);
+            EconomyAPI.getInstance().addMoney(player, prize);
             MessageHandler.sendMessage(player, "slot_win_triple", "{amount}", String.valueOf(prize));
         } else if (s1.equals(s2) || s2.equals(s3) || s1.equals(s3)) {
             double prize = amount * 1;
-            economyAPI.addMoney(player, prize);
+            EconomyAPI.getInstance().addMoney(player, prize);
             MessageHandler.sendMessage(player, "slot_win_double", "{amount}", String.valueOf(prize));
         } else {
             MessageHandler.sendMessage(player, "slot_lose", "{amount}", String.valueOf(amount));
@@ -148,14 +147,14 @@ public class CasinoCommand extends BaseCommand {
             return false;
         }
 
-        economyAPI.reduceMoney(player, amount);
+        EconomyAPI.getInstance().reduceMoney(player, amount);
 
         int roll = random.nextInt(6) + 1;
         MessageHandler.sendMessage(player, "dice_result", "{roll}", String.valueOf(roll));
 
         if (roll == guess) {
             double prize = amount * 5;
-            economyAPI.addMoney(player, prize);
+            EconomyAPI.getInstance().addMoney(player, prize);
             MessageHandler.sendMessage(player, "dice_win", "{amount}", String.valueOf(prize));
         } else {
             MessageHandler.sendMessage(player, "dice_lose", "{amount}", String.valueOf(amount));

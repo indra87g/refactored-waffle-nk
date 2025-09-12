@@ -2,8 +2,6 @@ name: Build Nukkit Plugin
 
 on: 
   pull_request: 
-    branches:
-      - main
     types: 
       - closed
   workflow_dispatch:
