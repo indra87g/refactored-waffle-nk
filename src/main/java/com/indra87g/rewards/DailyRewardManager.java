@@ -32,7 +32,6 @@ public class DailyRewardManager {
         this.zoneId = ZoneId.of(mainConfig.getString("timezone", "UTC"));
         this.resetTime = LocalTime.parse(mainConfig.getString("claim_reset", "00:00"));
 
-        // Load messages from the 'messages' section of daily_rewards.yml
         if (mainConfig.get("messages") instanceof Map) {
             for (Map.Entry<String, Object> entry : ((Map<String, Object>) mainConfig.get("messages")).entrySet()) {
                 if (entry.getValue() instanceof String) {
@@ -67,8 +66,8 @@ public class DailyRewardManager {
             streak = 1;
         }
 
-        List<List<Map>> rewardsList = (List<List<Map>>) mainConfig.getList("rewards");
-        if (rewardsList.isEmpty()) {
+        List<List<Map<String, Object>>> rewardsList = (List<List<Map<String, Object>>>) mainConfig.getList("rewards");
+        if (rewardsList == null || rewardsList.isEmpty()) {
             sendMessage(player, "not_available");
             return false;
         }
@@ -78,7 +77,7 @@ public class DailyRewardManager {
         dataConfig.save();
 
         int rewardIndex = (streak - 1) % rewardsList.size();
-        List<Map> rewards = rewardsList.get(rewardIndex);
+        List<Map<String, Object>> rewards = rewardsList.get(rewardIndex);
 
         giveRewards(player, rewards);
         sendMessage(player, "success", "{day}", String.valueOf(streak));
@@ -90,43 +89,49 @@ public class DailyRewardManager {
         return true;
     }
 
-    private void giveRewards(Player player, List<Map> rewards) {
+    private void giveRewards(Player player, List<Map<String, Object>> rewards) {
         if (rewards == null) return;
-        for (Map reward : rewards) {
+        for (Map<String, Object> reward : rewards) {
             String type = reward.get("type").toString().toLowerCase();
-            switch (type) {
-                case "item":
-                    int id = Integer.parseInt(reward.get("id").toString());
-                    int meta = reward.containsKey("meta") ? Integer.parseInt(reward.get("meta").toString()) : 0;
-                    int amount = Integer.parseInt(reward.get("amount").toString());
-                    player.getInventory().addItem(Item.get(id, meta, amount));
-                    break;
-                case "money":
-                    double money = Double.parseDouble(reward.get("amount").toString());
-                    EconomyAPI.getInstance().addMoney(player, money);
-                    break;
-                case "effect":
-                    Effect effect = Effect.getEffectByName(reward.get("effect").toString().toUpperCase());
-                    int duration = Integer.parseInt(reward.get("duration").toString());
-                    int amplifier = Integer.parseInt(reward.get("amplifier").toString());
-                    if (effect != null) {
-                        effect.setDuration(duration * 20);
-                        effect.setAmplifier(amplifier - 1); // Amplifiers are 0-indexed in code
-                        player.addEffect(effect);
-                    }
-                    break;
-                case "exp":
-                    int exp = Integer.parseInt(reward.get("amount").toString());
-                    player.addExperience(exp);
-                    break;
-                case "command":
-                    String cmd = reward.get("command").toString().replace("%player%", player.getName());
-                    Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), cmd);
-                    break;
+            try {
+                switch (type) {
+                    case "item":
+                        int id = ((Number) reward.get("id")).intValue();
+                        int meta = reward.containsKey("meta") ? ((Number) reward.get("meta")).intValue() : 0;
+                        int amount = ((Number) reward.get("amount")).intValue();
+                        player.getInventory().addItem(Item.get(id, meta, amount));
+                        break;
+                    case "money":
+                        double money = ((Number) reward.get("amount")).doubleValue();
+                        EconomyAPI.getInstance().addMoney(player, money);
+                        break;
+                    case "effect":
+                        Effect effect = Effect.getEffectByName(reward.get("effect").toString().toUpperCase());
+                        if (effect != null) {
+                            int duration = ((Number) reward.get("duration")).intValue();
+                            int amplifier = ((Number) reward.get("amplifier")).intValue();
+                            effect.setDuration(duration * 20);
+                            effect.setAmplifier(amplifier - 1);
+                            player.addEffect(effect);
+                        }
+                        break;
+                    case "exp":
+                        int exp = ((Number) reward.get("amount")).intValue();
+                        player.addExperience(exp);
+                        break;
+                    case "command":
+                        String cmd = reward.get("command").toString().replace("%player%", player.getName());
+                        Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), cmd);
+                        break;
+                }
+            } catch (Exception e) {
+                player.getServer().getLogger().error("Failed to give daily reward of type '" + type + "' to " + player.getName(), e);
+                player.sendMessage(TextFormat.colorize("&cAn error occurred while giving you a reward. Please contact an admin."));
             }
         }
     }
 
+    // ... existing methods ...
     public void sendMessage(Player player, String key, String... replacements) {
         String message = messages.getOrDefault(key, "&cMessage not found in daily_rewards.yml: " + key);
         if (replacements.length % 2 == 0) {

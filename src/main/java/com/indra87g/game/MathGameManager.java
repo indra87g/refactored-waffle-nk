@@ -30,14 +30,14 @@ public class MathGameManager {
 
     public void startGame(Player player) {
         if (isInGame(player)) {
-            sendMessage(player, "messages.already_in_game", null);
+            sendMessage(player, "already_in_game");
             return;
         }
 
         GameState state = new GameState();
         activeGames.put(player.getUniqueId(), state);
 
-        String[] startMessage = getMessage("messages.game_start", "{questions_total}", String.valueOf(config.getInt("game.questions_total"))).split("\n");
+        String[] startMessage = getMessage("game_start", "{questions_total}", String.valueOf(config.getSection("game").getInt("questions_total"))).split("\n");
         for(String line : startMessage) {
             player.sendMessage(line);
         }
@@ -48,9 +48,9 @@ public class MathGameManager {
     public void endGame(Player player) {
         GameState state = activeGames.remove(player.getUniqueId());
         if (state != null) {
-            String[] endMessage = getMessage("messages.game_over",
+            String[] endMessage = getMessage("game_over",
                 "{correct_total}", String.valueOf(state.correctAnswers),
-                "{questions_total}", String.valueOf(config.getInt("game.questions_total")),
+                "{questions_total}", String.valueOf(config.getSection("game").getInt("questions_total")),
                 "{final_reward}", String.valueOf(state.score)
             ).split("\n");
             for(String line : endMessage) {
@@ -69,12 +69,14 @@ public class MathGameManager {
             if (answer == state.expectedAnswer) {
                 // Correct
                 state.correctAnswers++;
-                state.score += config.getDouble("rewards.base_correct", 50);
-                state.score += config.getDouble("rewards.bonus." + state.lastOperation, 0);
-                sendMessage(player, "messages.correct_answer", "{score}", String.valueOf(state.score));
+                state.score += config.getSection("rewards").getDouble("base_correct", 50);
+                if (config.getSection("rewards.bonus").exists(state.lastOperation)) {
+                    state.score += config.getSection("rewards.bonus").getDouble(state.lastOperation, 0);
+                }
+                sendMessage(player, "correct_answer", "{score}", String.valueOf(state.score));
             } else {
                 // Incorrect
-                sendMessage(player, "messages.incorrect_answer",
+                sendMessage(player, "incorrect_answer",
                     "{correct_answer}", String.valueOf(state.expectedAnswer),
                     "{score}", String.valueOf(state.score)
                 );
@@ -82,14 +84,14 @@ public class MathGameManager {
 
             state.currentQuestionNumber++;
 
-            if (state.currentQuestionNumber > config.getInt("game.questions_total", 5)) {
+            if (state.currentQuestionNumber > config.getSection("game").getInt("questions_total", 5)) {
                 endGame(player);
             } else {
                 generateQuestion(player);
             }
 
         } catch (NumberFormatException e) {
-            sendMessage(player, "messages.invalid_answer", null);
+            sendMessage(player, "invalid_answer");
         }
     }
 
@@ -103,17 +105,16 @@ public class MathGameManager {
 
         switch (operation) {
             case 0: // Addition
-                num1 = randInt("addition.min", "addition.max");
-                num2 = randInt("addition.min", "addition.max");
+                num1 = randInt("addition", "min", "max");
+                num2 = randInt("addition", "min", "max");
                 state.expectedAnswer = num1 + num2;
                 opSymbol = "+";
                 state.lastOperation = "addition";
                 break;
             case 1: // Subtraction
-                num1 = randInt("subtraction.min", "subtraction.max");
-                num2 = randInt("subtraction.min", "subtraction.max");
-                // Ensure result is not negative
-                if (num2 > num1) {
+                num1 = randInt("subtraction", "min", "max");
+                num2 = randInt("subtraction", "min", "max");
+                if (num2 > num1) { // Ensure result is not negative
                     int temp = num1;
                     num1 = num2;
                     num2 = temp;
@@ -123,15 +124,15 @@ public class MathGameManager {
                 state.lastOperation = "subtraction";
                 break;
             case 2: // Multiplication
-                num1 = randInt("multiplication.min", "multiplication.max");
-                num2 = randInt("multiplication.min", "multiplication.max");
+                num1 = randInt("multiplication", "min", "max");
+                num2 = randInt("multiplication", "min", "max");
                 state.expectedAnswer = num1 * num2;
                 opSymbol = "*";
                 state.lastOperation = "multiplication";
                 break;
             case 3: // Division
-                int divisor = randInt("division.min_divisor", "division.max_divisor");
-                int multiplier = randInt("division.min_multiplier", "division.max_multiplier");
+                int divisor = randInt("division", "min_divisor", "max_divisor");
+                int multiplier = randInt("division", "min_multiplier", "max_multiplier");
                 num1 = divisor * multiplier;
                 num2 = divisor;
                 state.expectedAnswer = multiplier;
@@ -140,18 +141,24 @@ public class MathGameManager {
                 break;
         }
 
-        sendMessage(player, "messages.question",
+        sendMessage(player, "question",
             "{current_question}", String.valueOf(state.currentQuestionNumber),
-            "{questions_total}", String.valueOf(config.getInt("game.questions_total")),
+            "{questions_total}", String.valueOf(config.getSection("game").getInt("questions_total")),
             "{num1}", String.valueOf(num1),
             "{operator}", opSymbol,
             "{num2}", String.valueOf(num2)
         );
     }
 
-    private int randInt(String minKey, String maxKey) {
-        int min = config.getInt("game." + minKey);
-        int max = config.getInt("game." + maxKey);
+    private int randInt(String section, String minKey, String maxKey) {
+        Config sectionConfig = config.getSection("game." + section);
+        int min = sectionConfig.getInt(minKey);
+        int max = sectionConfig.getInt(maxKey);
+        if (min > max) { // Sanity check
+            int temp = min;
+            min = max;
+            max = temp;
+        }
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
@@ -161,8 +168,9 @@ public class MathGameManager {
     }
 
     private String getMessage(String key, String... replacements) {
-        String message = config.getSection("messages").getString(key, "&cMessage not found: " + key);
-        message = TextFormat.colorize(config.getString("messages.game_prefix", "") + message);
+        Config messagesConfig = config.getSection("messages");
+        String message = messagesConfig.getString(key, "&cMessage not found: " + key);
+        message = TextFormat.colorize(messagesConfig.getString("game_prefix", "") + message);
         if (replacements != null && replacements.length % 2 == 0) {
             for (int i = 0; i < replacements.length; i += 2) {
                 message = message.replace(replacements[i], replacements[i + 1]);
